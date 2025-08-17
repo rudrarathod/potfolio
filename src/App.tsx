@@ -35,7 +35,7 @@ function App() {
 
 
             <div className="info-card">
-              <div className="card-img">
+              <div className="card-img" style={{ backgroundImage: 'url(src/assets/education.jpeg)' }}>
                 <div>about my education</div>
               </div>
               <div><b>STUDENT</b><br />
@@ -52,12 +52,32 @@ function App() {
                 diploma in computer engineering
               </div>
             </div>
+
+            <div className="info-card">
+              <div className="card-img" style={{ backgroundImage: 'url(src/assets/intrest.png)' }}>
+                <div>intrest</div>
+              </div>
+              <div><b>AI & WORKFLOW AUTOMATION</b><br />
+                python, n8n, genrative ai, and other tools
+              </div>
+              <div>
+                <b>WEB & ANDROID DEVOLOPMENT</b><br />
+                react, react native, tailwind, bootstrap, and more
+              </div>
+
+              <div>
+                <b>IOT & ELECTRONICS</b>
+                <br />
+                iot devices, arduino, and raspberry pi
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div className="bottom-bar border-container">
         <div className="inner">
+          <div>© 2025 Rudra Rathod · Built with ❤️ using React & Tailwind </div>
           <p>
             <i className="fa-solid fa-envelope"></i>
             <i className="fa-brands fa-linkedin"></i>
