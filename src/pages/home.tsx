@@ -1,4 +1,6 @@
 import styles from './home.module.css';
+import educationImg from '../assets/education.jpeg';
+import intrestImg from '../assets/intrest.png';
 
 function Home() {
 
@@ -31,7 +33,7 @@ function Home() {
                 <div className={styles.details}>
                     <div
                         className={styles.infoCard}
-                        style={{ backgroundImage: "url('src/assets/education.jpeg')" }}
+                        style={{ backgroundImage: `url(${educationImg})` }}
                     >
                         <div className={`${styles.cardImg} ${styles.infoCardDiv}`}>
                             <div>about my education</div>
@@ -57,7 +59,7 @@ function Home() {
                     </div>
 
                     <div className={styles.infoCard}>
-                        <div className={styles.cardImg} style={{ backgroundImage: "url('src/assets/intrest.png')" }}>
+                        <div className={styles.cardImg} style={{ backgroundImage: `url(${intrestImg})` }}>
                             <div className={styles.infoCardDiv}>intrest</div>
                         </div>
                         <div className={styles.infoCardDiv}><b className={styles.bold}>AI & WORKFLOW AUTOMATION</b><br />
@@ -76,7 +78,7 @@ function Home() {
                 </div>
 
                 {/* Previous Work & Internships section - separate from details */}
-                <div  style={{ padding: '10px' }}>
+                <div style={{ padding: '10px' }}>
                     <div >
                         <b>Previous Work & Internships</b><br />
                         <div style={{ marginTop: 16 }}>
