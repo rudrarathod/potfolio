@@ -4,6 +4,8 @@
   font-family: "HvDTrial Fabrikat Mono", monospace, sans-serif;
   color: rgba(255, 255, 255, 0.87);
   background-color: #282828;
+
+  cursor: none;
 }
 
 /* Style the entire scrollbar */

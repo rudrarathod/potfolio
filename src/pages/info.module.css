@@ -1,0 +1,33 @@
+.pfp {
+    width: 100%;
+    height: 230px;
+    border-radius: 5%;
+    background-image: url('../assets/pfp5.jpg');
+    background-size: cover;
+    margin-bottom: 10px;
+}
+
+.infoCard {
+    background-color: #32312f;
+    border-radius: 5px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    color: #867C6B;
+    margin-bottom: 10px;
+}
+
+.cardImg {
+    width: 100%;
+    height: 150px;
+    background-size: cover;
+    padding: 0;
+    color: #FBF1C7;
+}
+
+.bold {
+    color: #FBF1C7;
+}
+
+.infoCardDiv {
+    padding: 10px;
+}
