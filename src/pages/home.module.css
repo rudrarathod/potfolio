@@ -32,10 +32,11 @@
 }
 
 .name {
-    position: fixed;
+    position: absolute;
     z-index: 1000;
-    width: 97%;
+    width: 98%;
 
+    top: 0;
     display: flex;
     justify-content: space-between;
 }
@@ -90,17 +91,28 @@
 }
 
 .objective {
+
+    /* border: red 2px solid; */
+    display: flex;
+    justify-content: end;
+    margin: -190px auto 20px auto;
+}
+
+.objectivetext {
     max-width: 700px;
-    margin: -100px auto 20px auto;
-    padding: 18px 24px;
     background: rgba(50, 49, 47, 0.85);
     border-radius: 10px;
     color: #FBF1C7;
     font-size: 1.08rem;
     line-height: 1.6;
     box-shadow: 0 2px 16px 0 rgba(0, 0, 0, 0.08);
+    padding: 18px 24px;
 
-    transform: translate(40%);
-    z-index: 1;
 
+    /* margin: -100px auto 20px auto; */
+
+
+
+    transform: translate(-20%);
+    z-index: 1000;
 }

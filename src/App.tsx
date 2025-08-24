@@ -13,6 +13,8 @@ function App() {
               <i className="fa-solid fa-angle-right "></i>
             </div>
 
+
+
             <div className="page-title">
               <h1>home</h1>
             </div>
@@ -20,18 +22,22 @@ function App() {
         </div>
       </div>
       <div className="main">
-        <div className="left-side-bar border-container" style={{ display: 'none' }}>
+        <input type="checkbox" name="mini-main" id="mini-main" defaultChecked style={{ display: 'none' }} />
+
+        <div className="left-side-bar border-container" >
           <div className="inner">
           </div>
         </div>
 
         <div className="main-bar border-container">
           <div className="inner">
-            <Home></Home>
+            <div className='home'>
+              <Home></Home>
+            </div>
           </div>
         </div>
 
-        <div className="right-side-bar border-container" style={{ display: 'none' }}>
+        <div className="right-side-bar border-container">
           <div className="inner">
             <Info></Info>
           </div>

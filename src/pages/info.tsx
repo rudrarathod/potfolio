@@ -6,7 +6,9 @@ function Info() {
 
     return (
         <>
-            <h4>Rudra Rathod</h4>
+            <h4 className={styles.name}>Rudra Rathod
+                <label htmlFor="mini-main"> <i className="fa-solid fa-down-left-and-up-right-to-center"></i></label>
+            </h4>
             <div className={styles.pfp}></div>
 
             <div>

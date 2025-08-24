@@ -8,19 +8,24 @@ function Home() {
             <div className={styles.section}>
 
 
-                <h4 className={styles.name}>Rudra Rathod <i className="fa-solid fa-down-left-and-up-right-to-center"></i></h4>
+                <h4 className={styles.name}>Rudra Rathod
+                    <label htmlFor="mini-main"> <i className="fa-solid fa-down-left-and-up-right-to-center"></i></label>
+                </h4>
                 <br /><br /><br />
                 <br />
 
                 <div className={styles.pfp}></div>
 
                 <div className={styles.objective}>
-                    <b>Objective</b><br />
-                    Motivated and creative AI & ML student at ISBM College of Engineering with a solid foundation
-                    in programming, web development, and AI tools. Experienced in developing dynamic projects
-                    using HTML, CSS, JavaScript, PHP, Python, and Java. Passionate about Robotics, the Internet of
-                    Things (IoT), Artificial Intelligence, and mentoring others. Committed to hands-on learning and
-                    eager to contribute to product development and technology education at scale.
+                    <div className={styles.objectivetext}>
+                        <b>Objective</b><br />
+                        Motivated and creative AI & ML student at ISBM College of Engineering with a solid foundation
+                        in programming, web development, and AI tools. Experienced in developing dynamic projects
+                        using HTML, CSS, JavaScript, PHP, Python, and Java. Passionate about Robotics, the Internet of
+                        Things (IoT), Artificial Intelligence, and mentoring others. Committed to hands-on learning and
+                        eager to contribute to product development and technology education at scale.
+
+                    </div>
                 </div>
 
                 <div className={styles.details}>
