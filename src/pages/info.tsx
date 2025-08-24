@@ -1,6 +1,6 @@
-
-
 import styles from './info.module.css';
+import educationImg from '../assets/education.jpeg';
+import intrestImg from '../assets/intrest.png';
 
 function Info() {
 
@@ -16,7 +16,7 @@ function Info() {
             </div>
 
             <div className={styles.infoCard}>
-                <div className={styles.cardImg} style={{ backgroundImage: "url('src/assets/education.jpeg')" }}>
+                <div className={styles.cardImg} style={{ backgroundImage: `url(${educationImg})` }}>
                     <div className={styles.infoCardDiv}>about my education</div>
                 </div>
                 <div className={styles.infoCardDiv}><b className={styles.bold}>STUDENT</b><br />
@@ -34,7 +34,7 @@ function Info() {
             </div>
 
             <div className={styles.infoCard}>
-                <div className={styles.cardImg} style={{ backgroundImage: "url('src/assets/intrest.png')" }}>
+                <div className={styles.cardImg} style={{ backgroundImage: `url(${intrestImg})` }}>
                     <div className={styles.infoCardDiv}>intrest</div>
                 </div>
                 <div className={styles.infoCardDiv}><b className={styles.bold}>AI & WORKFLOW AUTOMATION</b><br />
