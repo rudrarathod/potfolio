@@ -1,10 +1,36 @@
 .section {
     /* height: 100vh; */
 
-    background: linear-gradient(45deg, #333 25%, transparent 25%) -50px 0/100px 100px,
+    /* background: linear-gradient(45deg, #333 25%, transparent 25%) -50px 0/100px 100px,
         linear-gradient(135deg, #333 25%, transparent 25%) -50px 0/100px 100px,
         linear-gradient(45deg, transparent 75%, #111 75%) -50px 0/100px 100px,
-        linear-gradient(135deg, transparent 75%, #111 75%) -50px 0/100px 100px;
+        linear-gradient(135deg, transparent 75%, #111 75%) -50px 0/100px 100px; */
+
+    /* background-color: #282828;
+    opacity: 1;
+    background: linear-gradient(135deg, #11111155 25%, transparent 25%) -40px 0/ 80px 80px, linear-gradient(225deg, #111111 25%, transparent 25%) -40px 0/ 80px 80px, linear-gradient(315deg, #11111155 25%, transparent 25%) 0px 0/ 80px 80px, linear-gradient(45deg, #111111 25%, #282828 25%) 0px 0/ 80px 80px; */
+
+    /* background-color: #282828;
+    opacity: 1;
+    background-image: linear-gradient(135deg, #111111 25%, transparent 25%), linear-gradient(225deg, #111111 25%, transparent 25%), linear-gradient(45deg, #111111 25%, transparent 25%), linear-gradient(315deg, #111111 25%, #282828 25%);
+    background-position: 40px 0, 40px 0, 0 0, 0 0;
+    background-size: 40px 40px;
+    background-repeat: repeat; */
+
+    /* background-color: #282828;
+    opacity: 1;
+    background-image: radial-gradient(ellipse farthest-corner at 40px 40px, #111111, #111111 50%, #282828 50%);
+    background-size: 40px 40px; */
+
+    /* background-color: #282828;
+    opacity: 1;
+    background-image: linear-gradient(30deg, #111111 12%, transparent 12.5%, transparent 87%, #111111 87.5%, #111111), linear-gradient(150deg, #111111 12%, transparent 12.5%, transparent 87%, #111111 87.5%, #111111), linear-gradient(30deg, #111111 12%, transparent 12.5%, transparent 87%, #111111 87.5%, #111111), linear-gradient(150deg, #111111 12%, transparent 12.5%, transparent 87%, #111111 87.5%, #111111), linear-gradient(60deg, #11111177 25%, transparent 25.5%, transparent 75%, #11111177 75%, #11111177), linear-gradient(60deg, #11111177 25%, transparent 25.5%, transparent 75%, #11111177 75%, #11111177);
+    background-size: 80px 140px;
+    background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px; */
+
+    background-image: radial-gradient(ellipse 100% 100%, #111111, #111111 25%, transparent 25%), radial-gradient(ellipse 50% 50%, #333333, #333333 25%, #282828 25%);
+    background-size: 1em 1em, 2em 2em;
+
     animation: animatePlaid 5s linear infinite;
 
 }
@@ -116,3 +142,4 @@
     transform: translate(-20%);
     z-index: 1000;
 }
+

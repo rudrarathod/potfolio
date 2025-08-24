@@ -61,16 +61,34 @@ function Home() {
                             <div className={styles.infoCardDiv}>intrest</div>
                         </div>
                         <div className={styles.infoCardDiv}><b className={styles.bold}>AI & WORKFLOW AUTOMATION</b><br />
-                            python, n8n, genrative ai, and other tools
+                            Python, n8n, generative AI, and other tools
                         </div>
                         <div className={styles.infoCardDiv}>
-                            <b className={styles.bold}>WEB & ANDROID DEVOLOPMENT</b><br />
-                            react, react native, tailwind, bootstrap, and more
+                            <b className={styles.bold}>WEB & ANDROID DEVELOPMENT</b><br />
+                            React, React Native, Tailwind, Bootstrap, and more
                         </div>
                         <div className={styles.infoCardDiv}>
                             <b className={styles.bold}>IOT & ELECTRONICS</b>
                             <br />
-                            iot devices, arduino, and raspberry pi
+                            IoT devices, Arduino, and Raspberry Pi
+                        </div>
+                    </div>
+                </div>
+
+                {/* Previous Work & Internships section - separate from details */}
+                <div  style={{ padding: '10px' }}>
+                    <div >
+                        <b>Previous Work & Internships</b><br />
+                        <div style={{ marginTop: 16 }}>
+                            <b className={styles.bold}>INTERN - IoT</b><br />
+                            Black Orange Talent<br />
+                            Developed IoT projects and conducted training sessions for children. Taught them about IoT concepts and hands-on applications.
+                        </div>
+                        <div style={{ marginTop: 16 }}>
+                            <b className={styles.bold}>FREELANCE PROJECTS</b><br />
+                            Social media app using PHP<br />
+                            Mess management app<br />
+                            Hostel management dashboard
                         </div>
                     </div>
                 </div>
