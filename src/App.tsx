@@ -3,8 +3,16 @@ import Home from './pages/home'
 import Info from './pages/info'
 function App() {
 
+  const toggleFullScreen = () => {
+    const checkbox = document.getElementById('mini-main') as HTMLInputElement;
+    if (checkbox) {
+      checkbox.checked = !checkbox.checked;
+    }
+  };
+
   return (
     <section>
+      <input type="checkbox" name="mini-main" id="mini-main" defaultChecked style={{ display: 'none' }} />
       <div className="top-bar border-container" >
         <div className="inner">
           <p>
@@ -22,7 +30,6 @@ function App() {
         </div>
       </div>
       <div className="main">
-        <input type="checkbox" name="mini-main" id="mini-main" defaultChecked style={{ display: 'none' }} />
 
         <div className="left-side-bar border-container" >
           <div className="inner">
@@ -37,7 +44,7 @@ function App() {
           </div>
         </div>
 
-        <div className="right-side-bar border-container">
+        <div className="right-side-bar border-container" onClick={toggleFullScreen}>
           <div className="inner">
             <Info></Info>
           </div>

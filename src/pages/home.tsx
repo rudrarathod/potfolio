@@ -82,7 +82,7 @@ function Home() {
                     <div >
                         <b>Previous Work & Internships</b><br />
                         <div style={{ marginTop: 16 }}>
-                            <b className={styles.bold}>INTERN - IoT</b><br />
+                            <b className={styles.bold}>INTERN - Research and Development</b><br />
                             Black Orange Talent<br />
                             Developed IoT projects and conducted training sessions for children. Taught them about IoT concepts and hands-on applications.
                         </div>
