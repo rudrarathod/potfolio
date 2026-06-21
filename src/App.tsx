@@ -55,11 +55,23 @@ const getFileIconAndColor = (filename: string) => {
 
 
 function App() {
-  const [activeSection, setActiveSection] = useState<'projects' | 'experience' | 'skills'>('projects');
+  const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'experience' | 'skills'>('projects');
   const [activeFile, setActiveFile] = useState<string | null>('home.tsx');
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [showScrollExitOption, setShowScrollExitOption] = useState(false);
   const [touchStartY, setTouchStartY] = useState(0);
+  const reachedBottomTimeRef = useRef<number | null>(null);
+
+  // Track when the scroll exit banner first appears to serve as a scroll stopper
+  useEffect(() => {
+    if (showScrollExitOption) {
+      if (reachedBottomTimeRef.current === null) {
+        reachedBottomTimeRef.current = Date.now();
+      }
+    } else {
+      reachedBottomTimeRef.current = null;
+    }
+  }, [showScrollExitOption]);
 
   const [leftWidth, setLeftWidth] = useState<number>(() => {
     const saved = localStorage.getItem('leftWidth');
@@ -172,12 +184,12 @@ function App() {
     }
   }, [activeFile]);
 
-  // Exiting resume fullscreen reverts the main pane to the Dashboard
+  // Exiting resume fullscreen reverts the main pane to the Dashboard (unless on Home section)
   useEffect(() => {
-    if (!isFullScreen && activeFile === 'home.tsx') {
+    if (!isFullScreen && activeFile === 'home.tsx' && activeSection !== 'home') {
       setActiveFile(null);
     }
-  }, [isFullScreen, activeFile]);
+  }, [isFullScreen, activeFile, activeSection]);
 
   // Press Escape key to exit full screen mode properly
   useEffect(() => {
@@ -202,10 +214,12 @@ function App() {
     if (!isFullScreen) return;
     const target = e.currentTarget;
     const atBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 8;
-    // If at the bottom and user continues to scroll down (deltaY > 15)
+    // If at the bottom, user continues to scroll down, and the exit option has been visible for at least 800ms
     if (atBottom && e.deltaY > 15) {
-      setIsFullScreen(false);
-      setShowScrollExitOption(false);
+      if (reachedBottomTimeRef.current && Date.now() - reachedBottomTimeRef.current > 800) {
+        setIsFullScreen(false);
+        setShowScrollExitOption(false);
+      }
     }
   };
 
@@ -220,16 +234,20 @@ function App() {
     if (atBottom) {
       const currentY = e.touches[0].clientY;
       const deltaY = touchStartY - currentY;
-      // If user swipes up at the bottom (scrolling down further)
+      // If user swipes up at the bottom, and the exit option has been visible for at least 800ms
       if (deltaY > 30) {
-        setIsFullScreen(false);
-        setShowScrollExitOption(false);
+        if (reachedBottomTimeRef.current && Date.now() - reachedBottomTimeRef.current > 800) {
+          setIsFullScreen(false);
+          setShowScrollExitOption(false);
+        }
       }
     }
   };
 
-  const getFilesForSection = (section: 'projects' | 'experience' | 'skills') => {
+  const getFilesForSection = (section: 'home' | 'projects' | 'experience' | 'skills') => {
     switch (section) {
+      case 'home':
+        return ['home.tsx'];
       case 'experience':
         return ['dashboard', 'bot-intern.md', 'chrome-freelance.md', 'fullstack-freelance.md'];
       case 'skills':
@@ -248,6 +266,7 @@ function App() {
   const files = getFilesForSection(activeSection);
 
   const goPrevFile = () => {
+    if (files.length <= 1) return;
     if (activeFile === null) {
       setActiveFile(files[files.length - 1]);
     } else {
@@ -261,6 +280,7 @@ function App() {
   };
 
   const goNextFile = () => {
+    if (files.length <= 1) return;
     if (activeFile === null) {
       setActiveFile(files[0]);
     } else {
@@ -273,9 +293,13 @@ function App() {
     }
   };
 
-  const handleSectionChange = (section: 'projects' | 'experience' | 'skills') => {
+  const handleSectionChange = (section: 'home' | 'projects' | 'experience' | 'skills') => {
     setActiveSection(section);
-    setActiveFile(null);
+    if (section === 'home') {
+      setActiveFile('home.tsx');
+    } else {
+      setActiveFile(null);
+    }
   };
 
   const handleCheckboxChange = (checked: boolean) => {
@@ -320,6 +344,12 @@ function App() {
             </div>
 
             <div className="section-selector">
+              <button
+                className={`section-tab ${activeSection === 'home' ? 'active' : ''}`}
+                onClick={() => handleSectionChange('home')}
+              >
+                Home
+              </button>
               <button
                 className={`section-tab ${activeSection === 'projects' ? 'active' : ''}`}
                 onClick={() => handleSectionChange('projects')}
@@ -449,20 +479,7 @@ function App() {
               {activeFile === 'databases.json' && <Skills id="databases" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
               {activeFile === 'ai-ml.json' && <Skills id="ai-ml" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
 
-              {isFullScreen && showScrollExitOption && (
-                <div className="scroll-exit-container">
-                  <button
-                    onClick={() => {
-                      setIsFullScreen(false);
-                      setShowScrollExitOption(false);
-                    }}
-                    className="scroll-exit-btn"
-                  >
-                    <i className="fa-solid fa-compress" style={{ marginRight: '8px' }}></i>
-                    Exit Fullscreen (Scroll down further or click to exit)
-                  </button>
-                </div>
-              )}
+
             </div>
           </div>
         </div>
@@ -520,6 +537,18 @@ function App() {
           </p>
         </div>
       </div>
+      {isFullScreen && showScrollExitOption && (
+        <div
+          className="scroll-exit-toast"
+          onClick={() => {
+            setIsFullScreen(false);
+            setShowScrollExitOption(false);
+          }}
+        >
+          <i className="fa-solid fa-compress"></i>
+          <span>Scroll down further or click here to exit fullscreen</span>
+        </div>
+      )}
     </section>
   )
 }

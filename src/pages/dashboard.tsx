@@ -2,7 +2,7 @@ import type { GitHubRepo } from '../App';
 import styles from './dashboard.module.css';
 
 interface DashboardProps {
-  section: 'projects' | 'experience' | 'skills';
+  section: 'home' | 'projects' | 'experience' | 'skills';
   repos: GitHubRepo[];
   loadingRepos: boolean;
   onSelectFile: (file: string | null) => void;
