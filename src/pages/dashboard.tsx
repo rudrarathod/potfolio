@@ -9,6 +9,7 @@ interface DashboardProps {
   onSelectFile: (file: string | null) => void;
   onToggleFullScreen?: () => void;
   isFullScreen?: boolean;
+  isCachedData?: boolean;
 }
 
 const STATIC_PROJECTS = [
@@ -101,7 +102,8 @@ export default function Dashboard({
   loadingRepos,
   onSelectFile,
   onToggleFullScreen,
-  isFullScreen
+  isFullScreen,
+  isCachedData
 }: DashboardProps) {
   // Helper for generating languages list string
   const getCardLanguagesString = (languages?: { [key: string]: number }): string => {
@@ -153,6 +155,13 @@ export default function Dashboard({
           Click any card below to open its corresponding editor node in the workspace panel.
         </p>
 
+        {isCachedData && (
+          <div className={styles.cacheWarning}>
+            <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px', color: '#fabd2f' }}></i>
+            <span>GitHub API rate limit reached. Displaying cached projects.</span>
+          </div>
+        )}
+
         {section === 'projects' && (
           <div className={styles.grid}>
             {loadingRepos ? (
@@ -180,6 +189,9 @@ export default function Dashboard({
                     <div className={styles.cardHeader}>
                       <i className={`${iconClass} ${styles.cardIcon}`} style={{ color }}></i>
                       <span className={styles.filename}>{filename}</span>
+                      <span className={styles.visibilityBadge} title={repo.private ? "Private Repository" : "Public Repository"}>
+                        <i className={repo.private ? "fa-solid fa-lock" : "fa-solid fa-earth-americas"}></i>
+                      </span>
                     </div>
                     <h3 className={styles.cardTitle}>{repo.name}</h3>
                     <p className={styles.cardDescription}>

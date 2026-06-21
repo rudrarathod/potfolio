@@ -21,6 +21,8 @@ export interface GitHubRepo {
   default_branch: string;
   resume_url?: string;
   languages?: { [key: string]: number };
+  private?: boolean;
+  resume_content?: string;
 }
 
 export const getFileExtensionForLanguage = (lang: string | null): string => {
@@ -100,6 +102,21 @@ const extractLanguagesFromMarkdown = (text: string): { [key: string]: number } =
   return languages;
 };
 
+const decodeBase64 = (str: string): string => {
+  const cleaned = str.replace(/\s/g, '');
+  try {
+    return decodeURIComponent(
+      atob(cleaned)
+        .split('')
+        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+  } catch {
+    return atob(cleaned);
+  }
+};
+
+
 
 function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'experience' | 'skills'>('projects');
@@ -133,12 +150,22 @@ function App() {
   const [repos, setRepos] = useState<GitHubRepo[]>([]);
   const [loadingRepos, setLoadingRepos] = useState<boolean>(true);
   const [errorRepos, setErrorRepos] = useState<boolean>(false);
+  const [isCachedData, setIsCachedData] = useState<boolean>(false);
 
   useEffect(() => {
     setLoadingRepos(true);
-    fetch('https://api.github.com/users/rudrarathod/repos?sort=updated')
+    
+    const token = import.meta.env.VITE_GITHUB_TOKEN || '';
+    const headers: HeadersInit = token ? { 'Authorization': `token ${token}` } : {};
+
+    fetch('https://api.github.com/users/rudrarathod/repos?sort=updated', { headers })
       .then(res => {
-        if (!res.ok) throw new Error('Failed to fetch');
+        if (!res.ok) {
+          if (res.status === 403 || res.status === 429) {
+            throw new Error('RATE_LIMIT');
+          }
+          throw new Error('Failed to fetch');
+        }
         return res.json();
       })
       .then(async (data: GitHubRepo[]) => {
@@ -147,7 +174,7 @@ function App() {
             try {
               const isResumesRepo = repo.name.toLowerCase() === 'resumes' || repo.name.toLowerCase() === 'resume';
               if (isResumesRepo) {
-                const contentsRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/`);
+                const contentsRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/`, { headers });
                 if (contentsRes.ok) {
                   const files = await contentsRes.json();
                   if (Array.isArray(files)) {
@@ -180,7 +207,8 @@ function App() {
                           languages: virtualLanguages,
                           license: null,
                           default_branch: repo.default_branch,
-                          resume_url: file.download_url
+                          resume_url: file.download_url,
+                          private: true
                         };
                       })
                     );
@@ -192,24 +220,28 @@ function App() {
               let resumeUrl = '';
               let text = '';
               
-              const url1 = `https://raw.githubusercontent.com/rudrarathod/${repo.name}/${repo.default_branch}/RESUME.md?t=${Date.now()}`;
-              const res1 = await fetch(url1, { method: 'GET' });
+              const res1 = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/RESUME.md`, { headers });
               if (res1.ok) {
-                resumeUrl = url1;
-                text = await res1.text();
+                const data1 = await res1.json();
+                if (data1.content) {
+                  text = decodeBase64(data1.content);
+                  resumeUrl = data1.download_url || `https://api.github.com/repos/rudrarathod/${repo.name}/contents/RESUME.md`;
+                }
               } else {
-                const url2 = `https://raw.githubusercontent.com/rudrarathod/${repo.name}/${repo.default_branch}/resume.md?t=${Date.now()}`;
-                const res2 = await fetch(url2, { method: 'GET' });
+                const res2 = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/resume.md`, { headers });
                 if (res2.ok) {
-                  resumeUrl = url2;
-                  text = await res2.text();
+                  const data2 = await res2.json();
+                  if (data2.content) {
+                    text = decodeBase64(data2.content);
+                    resumeUrl = data2.download_url || `https://api.github.com/repos/rudrarathod/${repo.name}/contents/resume.md`;
+                  }
                 }
               }
 
               if (resumeUrl) {
                 let languages: { [key: string]: number } = {};
                 try {
-                  const langRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/languages`);
+                  const langRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/languages`, { headers });
                   if (langRes.ok) {
                     languages = await langRes.json();
                   }
@@ -218,7 +250,7 @@ function App() {
                 }
 
                 const desc = repo.description || extractDescriptionFromMarkdown(text) || 'A GitHub repository.';
-                return { ...repo, resume_url: resumeUrl, description: desc, languages };
+                return { ...repo, resume_url: resumeUrl, description: desc, languages, resume_content: text };
               }
               return null;
             } catch {
@@ -238,9 +270,31 @@ function App() {
         });
 
         setRepos(flattened);
+        setIsCachedData(false);
+        try {
+          localStorage.setItem('cached_github_repos', JSON.stringify(flattened));
+        } catch (e) {
+          console.error('Failed to save repos to localStorage', e);
+        }
         setLoadingRepos(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.warn('GitHub fetch error, checking localStorage cache...', err);
+        const cached = localStorage.getItem('cached_github_repos');
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setRepos(parsed);
+              setIsCachedData(true);
+              setErrorRepos(false);
+              setLoadingRepos(false);
+              return;
+            }
+          } catch (e) {
+            console.error('Failed to parse cached repositories', e);
+          }
+        }
         setErrorRepos(true);
         setLoadingRepos(false);
       });
@@ -456,7 +510,7 @@ function App() {
       />
       <div className="top-bar border-container">
         <div className="inner">
-          <p>
+          <div className="top-bar-content">
             <div className="navigation">
               <i
                 className="fa-solid fa-angle-left"
@@ -504,7 +558,7 @@ function App() {
             <div className="page-title">
               <h1>{activeFile || 'dashboard'}</h1>
             </div>
-          </p>
+          </div>
         </div>
       </div>
       <div className="main">
@@ -568,6 +622,7 @@ function App() {
                   onSelectFile={setActiveFile}
                   onToggleFullScreen={() => setIsFullScreen(prev => !prev)}
                   isFullScreen={isFullScreen}
+                  isCachedData={isCachedData}
                 />
               )}
               {activeFile === 'home.tsx' && (
@@ -640,7 +695,7 @@ function App() {
       <div className="bottom-bar border-container">
         <div className="inner">
           <div>© 2025 Rudra Rathod · Built with ❤️ using React.</div>
-          <p>
+          <div className="bottom-bar-links">
             <a
               href="mailto:rudrarathod738@gmail.com"
               target="_blank"
@@ -665,7 +720,7 @@ function App() {
             >
               <i className="fa-brands fa-github"></i>
             </a>
-          </p>
+          </div>
         </div>
       </div>
       {isFullScreen && showScrollExitOption && (

@@ -214,3 +214,37 @@
   border-radius: 4px;
   width: 30%;
 }
+
+.cacheWarning {
+  display: flex;
+  align-items: center;
+  background-color: #32302f;
+  border: 1px solid #fabd2f;
+  color: #fabd2f;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-bottom: 20px;
+  user-select: none;
+}
+
+.visibilityBadge {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: #867c6b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.visibilityBadge i {
+  opacity: 0.75;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.card:hover .visibilityBadge i {
+  color: #b8bb26;
+  opacity: 1;
+}
+
+

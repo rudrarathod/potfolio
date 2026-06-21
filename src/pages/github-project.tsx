@@ -60,6 +60,28 @@ export default function GithubProject({ repo, onToggleFullScreen, isFullScreen }
     setLoading(true);
     setResumeHtml('');
 
+    const processMarkdown = (text: string) => {
+      const parsed = marked.parse(text) as string;
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(parsed, 'text/html');
+      doc.querySelectorAll('pre code.language-mermaid').forEach(codeElement => {
+        const preElement = codeElement.parentElement;
+        if (preElement) {
+          const div = document.createElement('div');
+          div.className = 'mermaid';
+          div.textContent = codeElement.textContent;
+          preElement.replaceWith(div);
+        }
+      });
+      setResumeHtml(doc.body.innerHTML);
+      setLoading(false);
+    };
+
+    if (repo.resume_content) {
+      processMarkdown(repo.resume_content);
+      return;
+    }
+
     // Fetch RESUME.md from GitHub raw content with cache-busting timestamp
     const baseUrl = repo.resume_url || `https://raw.githubusercontent.com/rudrarathod/${repo.name}/${repo.default_branch}/RESUME.md`;
     const url = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}_=${Date.now()}`;
@@ -70,30 +92,13 @@ export default function GithubProject({ repo, onToggleFullScreen, isFullScreen }
         return res.text();
       })
       .then(text => {
-        // Parse markdown text to HTML
-        const parsed = marked.parse(text) as string;
-
-        // Convert <pre><code class="language-mermaid"> to <div class="mermaid">
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(parsed, 'text/html');
-        doc.querySelectorAll('pre code.language-mermaid').forEach(codeElement => {
-          const preElement = codeElement.parentElement;
-          if (preElement) {
-            const div = document.createElement('div');
-            div.className = 'mermaid';
-            div.textContent = codeElement.textContent;
-            preElement.replaceWith(div);
-          }
-        });
-
-        setResumeHtml(doc.body.innerHTML);
-        setLoading(false);
+        processMarkdown(text);
       })
       .catch(() => {
         setResumeHtml('<p class="no-readme"><i>RESUME.md file could not be loaded or does not exist for this repository.</i></p>');
         setLoading(false);
       });
-  }, [repo.name, repo.default_branch, repo.resume_url]);
+  }, [repo.name, repo.default_branch, repo.resume_url, repo.resume_content]);
 
   useEffect(() => {
     if (!loading && resumeHtml) {
@@ -182,6 +187,10 @@ export default function GithubProject({ repo, onToggleFullScreen, isFullScreen }
           <div className={styles.badge} title="Primary Language">
             <i className="fa-solid fa-circle" style={{ color: '#fabd2f', fontSize: '0.65rem', marginRight: '6px' }}></i>
             {primaryLanguage}
+          </div>
+          <div className={styles.badge} title="Repository Visibility">
+            <i className={repo.private ? "fa-solid fa-lock" : "fa-solid fa-earth-americas"} style={{ color: repo.private ? '#fe8019' : '#83a598', marginRight: '6px' }}></i>
+            {repo.private ? "Private" : "Public"}
           </div>
           <div className={styles.badge} title="GitHub Stars">
             <i className="fa-solid fa-star" style={{ color: '#fe8019', marginRight: '6px' }}></i>
