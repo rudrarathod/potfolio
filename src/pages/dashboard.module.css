@@ -166,3 +166,51 @@
   font-size: 0.7rem;
   padding: 2px 4px;
 }
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.skeletonCard {
+  animation: pulse 1.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+.skeletonHeader {
+  height: 14px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: 50%;
+}
+
+.skeletonTitle {
+  height: 20px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: 80%;
+}
+
+.skeletonDescription {
+  height: 40px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.skeletonFooter {
+  height: 14px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  width: 30%;
+}

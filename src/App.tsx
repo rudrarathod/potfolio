@@ -19,9 +19,11 @@ export interface GitHubRepo {
   language: string | null;
   license: { name: string } | null;
   default_branch: string;
+  resume_url?: string;
+  languages?: { [key: string]: number };
 }
 
-const getFileExtensionForLanguage = (lang: string | null): string => {
+export const getFileExtensionForLanguage = (lang: string | null): string => {
   if (!lang) return 'md';
   const l = lang.toLowerCase();
   if (l === 'typescript') return 'tsx';
@@ -53,6 +55,31 @@ const getFileIconAndColor = (filename: string) => {
   }
 };
 
+
+const extractDescriptionFromMarkdown = (text: string): string => {
+  const lines = text.split('\n');
+  for (let line of lines) {
+    line = line.trim();
+    // Skip empty lines, headers, images, HRs, and markdown link/image wrappers
+    if (!line || line.startsWith('#') || line.startsWith('!') || line.startsWith('-') || line.startsWith('[')) {
+      continue;
+    }
+    // Clean up quotes, links, and styling brackets
+    let cleanLine = line
+      .replace(/^>\s*/, '') // strip blockquote characters
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // strip links [text](url) -> text
+      .replace(/[\*_`~]/g, '') // strip markdown bold/italic/code block symbols
+      .trim();
+    
+    if (cleanLine.length > 10) {
+      if (cleanLine.length > 140) {
+        return cleanLine.substring(0, 137) + '...';
+      }
+      return cleanLine;
+    }
+  }
+  return '';
+};
 
 function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'experience' | 'skills'>('projects');
@@ -88,25 +115,55 @@ function App() {
   const [errorRepos, setErrorRepos] = useState<boolean>(false);
 
   useEffect(() => {
-    const cached = sessionStorage.getItem('github_repos');
-    if (cached) {
-      try {
-        setRepos(JSON.parse(cached));
-        setLoadingRepos(false);
-        return;
-      } catch {
-        // Ignore and refetch
-      }
-    }
-
+    setLoadingRepos(true);
     fetch('https://api.github.com/users/rudrarathod/repos?sort=updated')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch');
         return res.json();
       })
-      .then((data: GitHubRepo[]) => {
-        setRepos(data);
-        sessionStorage.setItem('github_repos', JSON.stringify(data));
+      .then(async (data: GitHubRepo[]) => {
+        const checkedRepos = await Promise.all(
+          data.map(async (repo): Promise<GitHubRepo | null> => {
+            try {
+              let resumeUrl = '';
+              let text = '';
+              
+              const url1 = `https://raw.githubusercontent.com/rudrarathod/${repo.name}/${repo.default_branch}/RESUME.md?t=${Date.now()}`;
+              const res1 = await fetch(url1, { method: 'GET' });
+              if (res1.ok) {
+                resumeUrl = url1;
+                text = await res1.text();
+              } else {
+                const url2 = `https://raw.githubusercontent.com/rudrarathod/${repo.name}/${repo.default_branch}/resume.md?t=${Date.now()}`;
+                const res2 = await fetch(url2, { method: 'GET' });
+                if (res2.ok) {
+                  resumeUrl = url2;
+                  text = await res2.text();
+                }
+              }
+
+              if (resumeUrl) {
+                let languages: { [key: string]: number } = {};
+                try {
+                  const langRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/languages`);
+                  if (langRes.ok) {
+                    languages = await langRes.json();
+                  }
+                } catch (e) {
+                  console.error('Failed to fetch languages for repo', repo.name, e);
+                }
+
+                const desc = repo.description || extractDescriptionFromMarkdown(text) || 'A GitHub repository.';
+                return { ...repo, resume_url: resumeUrl, description: desc, languages };
+              }
+              return null;
+            } catch {
+              return null;
+            }
+          })
+        );
+        const filtered = checkedRepos.filter((repo): repo is GitHubRepo => repo !== null);
+        setRepos(filtered);
         setLoadingRepos(false);
       })
       .catch(() => {

@@ -1,0 +1,31 @@
+You are an expert technical writer and senior software engineering recruiter. 
+
+Your task is to generate a professional, resume-focused documentation file named `RESUME.md` for a software project based on the provided project description/source code. 
+
+Unlike a standard README.md which explains installation, configuration, and developer setup, the `RESUME.md` is designed to showcase the project to hiring managers and recruiters directly on a developer portfolio site. It must highlight the engineering complexity, system architecture, your individual role, and the impact of the work using professional resume formatting standards (e.g., the STAR method: Situation, Task, Action, Result).
+
+### Structure of the RESUME.md File
+
+The generated Markdown file must use the following clean layout:
+
+1. **Title / Project Name**: A large header with a concise one-line subtitle describing the system.
+2. **Project Overview**: A 2-3 sentence paragraph explaining what the project is, the problem it solves, and its high-level architecture.
+3. **Core Technologies**: A clean list of technologies, frameworks, and tools used, categorized logically (e.g., Frontend, Backend, AI/ML, Infrastructure).
+4. **Key Contributions & Engineering Challenges**:
+   - Write 4-5 bullet points focusing on high-impact actions you took.
+   - Start each bullet point with a strong action verb (e.g., *Engineered*, *Optimized*, *Architected*, *Implemented*, *Streamlined*).
+   - Detail the technical challenges (e.g., managing state, reducing API latency, handling parallel processing, memory optimization).
+   - Quantify results and metrics where possible (e.g., "reduced latency by 40%", "optimized bundle size by 30%", "handled parallel batches of 50+ concurrent requests").
+5. **Key Architecture & Design Decisions**: A brief explanation of 2 critical architectural choices (e.g., why a specific API, database, or state management library was selected, and how data flows).
+6. **Key Takeaways & Learnings**: 2 concise bullet points demonstrating professional growth, technical mastery, or best practices learned during development.
+
+### Guidelines
+- **Tone**: Professional, confident, outcome-driven, and highly technical.
+- **Formatting**: Use clean standard Markdown (headings, lists, bold text). Avoid interactive widgets or installation guides (no `npm install` instructions).
+- **Target Audience**: Senior Engineers, Engineering Managers, and Technical Recruiters.
+
+---
+
+Here is the source code / details / description of my project:
+
+[INSERT YOUR PROJECT DESCRIPTION, CODE SAMPLES, OR COPIED README HERE]

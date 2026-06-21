@@ -1,3 +1,4 @@
+import { getFileExtensionForLanguage } from '../App';
 import type { GitHubRepo } from '../App';
 import styles from './dashboard.module.css';
 
@@ -102,16 +103,19 @@ export default function Dashboard({
   onToggleFullScreen,
   isFullScreen
 }: DashboardProps) {
-  // Helper for language -> extension
-  const getFileExtension = (lang: string | null): string => {
-    if (!lang) return 'md';
-    const l = lang.toLowerCase();
-    if (l === 'typescript') return 'tsx';
-    if (l === 'javascript') return 'js';
-    if (l === 'python') return 'py';
-    if (l === 'html') return 'html';
-    if (l === 'css') return 'css';
-    return 'md';
+  // Helper for generating languages list string
+  const getCardLanguagesString = (languages?: { [key: string]: number }): string => {
+    if (!languages || Object.keys(languages).length === 0) return 'Markdown';
+    const totalBytes = Object.values(languages).reduce((sum, val) => sum + val, 0);
+    return Object.entries(languages)
+      .map(([name, bytes]) => ({
+        name,
+        percentage: totalBytes > 0 ? (bytes / totalBytes) * 100 : 0,
+      }))
+      .sort((a, b) => b.percentage - a.percentage)
+      .slice(0, 3)
+      .map(lang => lang.name)
+      .join(' \u2022 ');
   };
 
   // Helper for file icon & color
@@ -151,10 +155,19 @@ export default function Dashboard({
 
         {section === 'projects' && (
           <div className={styles.grid}>
-            {/* If live repos available, render them */}
-            {repos.length > 0 ? (
+            {loadingRepos ? (
+              // Render skeleton loader cards
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className={`${styles.card} ${styles.skeletonCard}`}>
+                  <div className={styles.skeletonHeader}></div>
+                  <div className={styles.skeletonTitle}></div>
+                  <div className={styles.skeletonDescription}></div>
+                  <div className={styles.skeletonFooter}></div>
+                </div>
+              ))
+            ) : repos.length > 0 ? (
               repos.map(repo => {
-                const ext = getFileExtension(repo.language);
+                const ext = getFileExtensionForLanguage(repo.language);
                 const filename = `${repo.name}.${ext}`;
                 const { iconClass, color } = getCardIconAndColor(filename);
 
@@ -173,7 +186,9 @@ export default function Dashboard({
                       {repo.description || 'No description provided.'}
                     </p>
                     <div className={styles.cardFooter}>
-                      <span className={styles.langTag}>{repo.language || 'Markdown'}</span>
+                      <span className={styles.langTag}>
+                        {getCardLanguagesString(repo.languages)}
+                      </span>
                       {repo.stargazers_count > 0 && (
                         <span className={styles.starTag}>
                           <i className="fa-solid fa-star" style={{ color: '#fe8019', marginRight: '4px' }}></i>
@@ -202,12 +217,6 @@ export default function Dashboard({
                     <p className={styles.cardDescription}>{proj.description}</p>
                     <div className={styles.cardFooter}>
                       <span className={styles.langTag}>{proj.language}</span>
-                      {loadingRepos && (
-                        <span className={styles.loadingTag}>
-                          <i className="fa-solid fa-spinner fa-spin" style={{ marginRight: '4px' }}></i>
-                          Loading...
-                        </span>
-                      )}
                     </div>
                   </div>
                 );

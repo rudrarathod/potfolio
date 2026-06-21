@@ -219,3 +219,134 @@
   overflow-x: auto;
   line-height: 1.5;
 }
+
+:global(.mermaid) {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  background-color: #1d2021;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #3c3836;
+  overflow-x: auto;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.skeletonContainer {
+  animation: pulse 1.5s infinite ease-in-out;
+  padding: 10px 0;
+}
+
+.skeletonTitle {
+  height: 28px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 24px;
+  width: 60%;
+}
+
+.skeletonHeading {
+  height: 20px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-top: 30px;
+  margin-bottom: 16px;
+  width: 40%;
+}
+
+.skeletonText {
+  height: 14px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  width: 100%;
+}
+
+.skeletonBullet {
+  height: 12px;
+  background-color: #3c3836;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  margin-left: 20px;
+  width: 80%;
+  position: relative;
+}
+
+.skeletonBullet::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 3px;
+  width: 6px;
+  height: 6px;
+  background-color: #3c3836;
+  border-radius: 50%;
+}
+
+.languagesSection {
+  margin: 25px 0;
+  background-color: #1d2021;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #3c3836;
+}
+
+.languagesHeader {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fbf1c7;
+  margin-bottom: 12px;
+}
+
+.languagesBar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: #32312f;
+  margin-bottom: 15px;
+}
+
+.languageBarSegment {
+  height: 100%;
+}
+
+.languagesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px 25px;
+}
+
+.languageItem {
+  display: flex;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.languageDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.languageName {
+  color: #ebdbb2;
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.languagePercent {
+  color: #867c6b;
+}
