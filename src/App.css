@@ -30,6 +30,10 @@ section {
   top: -8px;
   left: 5px;
   background-color: #282828;
+  max-width: calc(100% - 15px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .border-container:hover {
@@ -104,8 +108,13 @@ section {
     margin 0.3s ease;
 }
 
+/* Expand sidebar width dynamically to 12ch when layout title is 'Experience' to avoid overflow */
+.main .left-side-bar[data-title="Experience"] {
+  width: 12ch;
+}
+
 .main .left-side-bar::before {
-  content: "Projrcts";
+  content: attr(data-title);
 }
 
 .main .right-side-bar {
@@ -183,7 +192,8 @@ section {
 /* #mini-main:checked ~ .main-bar {
   display: block;
 } */
-#mini-main:checked ~ .top-bar {
+/* Fullscreen toggle styles based on class state */
+section.fullscreen .top-bar {
   opacity: 0;
   height: 0;
   margin: 0;
@@ -191,7 +201,7 @@ section {
   pointer-events: none;
 }
 
-#mini-main:checked ~ .bottom-bar {
+section.fullscreen .bottom-bar {
   opacity: 0;
   height: 0;
   margin: 0;
@@ -199,7 +209,7 @@ section {
   pointer-events: none;
 }
 
-#mini-main:checked ~ .main .left-side-bar {
+section.fullscreen .main .left-side-bar {
   opacity: 0;
   width: 0;
   margin: 0;
@@ -207,7 +217,7 @@ section {
   pointer-events: none;
 }
 
-#mini-main:checked ~ .main .right-side-bar {
+section.fullscreen .main .right-side-bar {
   opacity: 0;
   width: 0;
   margin: 0;
@@ -215,20 +225,216 @@ section {
   pointer-events: none;
 }
 
-#mini-main:checked ~ .main {
+section.fullscreen .main {
   height: 100vh;
   gap: 0;
 }
 .main-bar .inner .home {
-  opacity: 0;
-  transform: scale(0.95);
+  opacity: 1;
+  transform: scale(1);
   transition:
     opacity 0.3s ease,
     transform 0.3s ease;
-  pointer-events: none;
+  pointer-events: auto;
+  height: 100%;
 }
-#mini-main:checked ~ .main .main-bar .inner .home {
+section.fullscreen .main .main-bar .inner .home {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
 }
+
+/* Projects Sidebar Explorer styling */
+.projects-explorer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  padding-top: 15px;
+  user-select: none;
+}
+
+.projects-explorer .folder-label {
+  font-size: 0.65rem;
+  color: #867c6b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid #3c3836;
+  padding-bottom: 4px;
+  font-weight: bold;
+}
+
+.explorer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #867C6B;
+  cursor: pointer;
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.explorer-item:hover, .explorer-item.active {
+  color: #b8bb26;
+  background-color: rgba(184, 187, 38, 0.05);
+}
+
+.explorer-item i {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.explorer-item span {
+  font-size: 0.6rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.bottom-bar .inner p a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-bar .inner p a:hover {
+  color: #b8bb26;
+}
+
+/* Top-bar Navigation Tabs */
+.section-selector {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.section-tab {
+  background: none;
+  border: none;
+  color: #867C6B;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-tab:hover {
+  color: #fbf1c7;
+}
+
+.section-tab.active {
+  color: #b8bb26;
+  border-bottom: 2px solid #b8bb26;
+}
+
+/* Scroll Exit Option at bottom of fullscreen editor */
+.scroll-exit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px 0 20px 0;
+  width: 100%;
+  border-top: 1px dashed #3c3836;
+  margin-top: 30px;
+  animation: fadeIn 0.4s ease;
+}
+
+.scroll-exit-btn {
+  background-color: #32312f;
+  border: 1px solid #3c3836;
+  color: #867c6b;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.scroll-exit-btn:hover {
+  color: #b8bb26;
+  border-color: #b8bb26;
+  background-color: rgba(184, 187, 38, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Sidebar Resizing Styles */
+section.dragging .main .left-side-bar,
+section.dragging .main .right-side-bar,
+section.dragging .main .main-bar {
+  transition: none !important;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 10px;
+  cursor: col-resize;
+  z-index: 100;
+  user-select: none;
+}
+
+.left-handle {
+  right: -5px;
+}
+
+.right-handle {
+  left: -5px;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s ease;
+}
+
+.left-handle::after {
+  right: 4px;
+}
+
+.right-handle::after {
+  left: 4px;
+}
+
+.resize-handle:hover::after,
+section.dragging .left-side-bar:hover .left-handle::after,
+section.dragging .right-side-bar:hover .right-handle::after {
+  background-color: #b8bb26;
+}
+
+
+
+
+
