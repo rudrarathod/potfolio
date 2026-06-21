@@ -69,9 +69,22 @@ section {
 
 .top-bar .inner p .navigation {
   display: flex;
-  gap: 10px;
+  gap: 15px;
   align-items: center;
-  color: #3c3836;
+}
+
+.top-bar .inner p .navigation i {
+  color: #867c6b;
+  transition: color 0.2s ease, transform 0.1s ease;
+  padding: 4px;
+}
+
+.top-bar .inner p .navigation i:hover {
+  color: #b8bb26;
+}
+
+.top-bar .inner p .navigation i:active {
+  transform: scale(0.85);
 }
 
 .top-bar::before {
