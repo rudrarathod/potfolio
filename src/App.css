@@ -65,6 +65,17 @@ section {
 .top-bar .inner p {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.page-title {
+  margin-left: auto;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .top-bar .inner p .navigation {
