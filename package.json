@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "sync": "node scripts/sync-projects.cjs",
+    "build": "node scripts/sync-projects.cjs && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

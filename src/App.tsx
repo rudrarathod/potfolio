@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import Home from './pages/home'
+import projectsData from './data/projects.json'
 import Dashboard from './pages/dashboard'
 import Info from './pages/info'
 import Project from './pages/project'
@@ -57,67 +58,6 @@ const getFileIconAndColor = (filename: string) => {
   }
 };
 
-
-const extractDescriptionFromMarkdown = (text: string): string => {
-  const lines = text.split('\n');
-  for (let line of lines) {
-    line = line.trim();
-    // Skip empty lines, headers, images, HRs, and markdown link/image wrappers
-    if (!line || line.startsWith('#') || line.startsWith('!') || line.startsWith('-') || line.startsWith('[')) {
-      continue;
-    }
-    // Clean up quotes, links, and styling brackets
-    let cleanLine = line
-      .replace(/^>\s*/, '') // strip blockquote characters
-      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // strip links [text](url) -> text
-      .replace(/[\*_`~]/g, '') // strip markdown bold/italic/code block symbols
-      .trim();
-    
-    if (cleanLine.length > 10) {
-      if (cleanLine.length > 140) {
-        return cleanLine.substring(0, 137) + '...';
-      }
-      return cleanLine;
-    }
-  }
-  return '';
-};
-
-const extractLanguagesFromMarkdown = (text: string): { [key: string]: number } => {
-  const languages: { [key: string]: number } = {};
-  const commonLangs = ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python', 'Rust', 'Go', 'Java', 'C++', 'C', 'PHP', 'Shell', 'Ruby', 'SCSS', 'Swift', 'Kotlin'];
-  
-  commonLangs.forEach(lang => {
-    const escapedLang = lang.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    const regex = new RegExp(`\\b${escapedLang}\\b`, 'gi');
-    const matches = text.match(regex);
-    if (matches && matches.length > 0) {
-      languages[lang] = matches.length * 2000;
-    }
-  });
-  
-  if (Object.keys(languages).length === 0) {
-    languages['Markdown'] = 1000;
-  }
-  return languages;
-};
-
-const decodeBase64 = (str: string): string => {
-  const cleaned = str.replace(/\s/g, '');
-  try {
-    return decodeURIComponent(
-      atob(cleaned)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-  } catch {
-    return atob(cleaned);
-  }
-};
-
-
-
 function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'experience' | 'skills'>('projects');
   const [activeFile, setActiveFile] = useState<string | null>('home.tsx');
@@ -147,158 +87,10 @@ function App() {
   });
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const [repos, setRepos] = useState<GitHubRepo[]>([]);
-  const [loadingRepos, setLoadingRepos] = useState<boolean>(true);
-  const [errorRepos, setErrorRepos] = useState<boolean>(false);
-  const [isCachedData, setIsCachedData] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoadingRepos(true);
-    
-    const token = import.meta.env.VITE_GITHUB_TOKEN || '';
-    const headers: HeadersInit = token ? { 'Authorization': `token ${token}` } : {};
-
-    fetch('https://api.github.com/users/rudrarathod/repos?sort=updated', { headers })
-      .then(res => {
-        if (!res.ok) {
-          if (res.status === 403 || res.status === 429) {
-            throw new Error('RATE_LIMIT');
-          }
-          throw new Error('Failed to fetch');
-        }
-        return res.json();
-      })
-      .then(async (data: GitHubRepo[]) => {
-        const checkedRepos = await Promise.all(
-          data.map(async (repo): Promise<GitHubRepo[] | GitHubRepo | null> => {
-            try {
-              const isResumesRepo = repo.name.toLowerCase() === 'resumes' || repo.name.toLowerCase() === 'resume';
-              if (isResumesRepo) {
-                const contentsRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/`, { headers });
-                if (contentsRes.ok) {
-                  const files = await contentsRes.json();
-                  if (Array.isArray(files)) {
-                    const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md') && f.name.toLowerCase() !== 'readme.md');
-                    
-                    const virtualRepos = await Promise.all(
-                      mdFiles.map(async (file): Promise<GitHubRepo> => {
-                        let text = '';
-                        try {
-                          const fileRes = await fetch(file.download_url);
-                          if (fileRes.ok) {
-                            text = await fileRes.text();
-                          }
-                        } catch (e) {
-                          console.error('Failed to fetch virtual repo content', file.name, e);
-                        }
-                        
-                        const displayName = file.name.replace(/\.md$/, '');
-                        const desc = extractDescriptionFromMarkdown(text) || 'Private project documentation.';
-                        const virtualLanguages = extractLanguagesFromMarkdown(text);
-                        
-                        return {
-                          name: displayName,
-                          html_url: file.html_url,
-                          description: desc,
-                          stargazers_count: 0,
-                          forks_count: 0,
-                          open_issues_count: 0,
-                          language: 'Markdown',
-                          languages: virtualLanguages,
-                          license: null,
-                          default_branch: repo.default_branch,
-                          resume_url: file.download_url,
-                          private: true
-                        };
-                      })
-                    );
-                    return virtualRepos;
-                  }
-                }
-              }
-
-              let resumeUrl = '';
-              let text = '';
-              
-              const res1 = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/RESUME.md`, { headers });
-              if (res1.ok) {
-                const data1 = await res1.json();
-                if (data1.content) {
-                  text = decodeBase64(data1.content);
-                  resumeUrl = data1.download_url || `https://api.github.com/repos/rudrarathod/${repo.name}/contents/RESUME.md`;
-                }
-              } else {
-                const res2 = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/resume.md`, { headers });
-                if (res2.ok) {
-                  const data2 = await res2.json();
-                  if (data2.content) {
-                    text = decodeBase64(data2.content);
-                    resumeUrl = data2.download_url || `https://api.github.com/repos/rudrarathod/${repo.name}/contents/resume.md`;
-                  }
-                }
-              }
-
-              if (resumeUrl) {
-                let languages: { [key: string]: number } = {};
-                try {
-                  const langRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/languages`, { headers });
-                  if (langRes.ok) {
-                    languages = await langRes.json();
-                  }
-                } catch (e) {
-                  console.error('Failed to fetch languages for repo', repo.name, e);
-                }
-
-                const desc = repo.description || extractDescriptionFromMarkdown(text) || 'A GitHub repository.';
-                return { ...repo, resume_url: resumeUrl, description: desc, languages, resume_content: text };
-              }
-              return null;
-            } catch {
-              return null;
-            }
-          })
-        );
-
-        const flattened: GitHubRepo[] = [];
-        checkedRepos.forEach(item => {
-          if (item === null) return;
-          if (Array.isArray(item)) {
-            flattened.push(...item);
-          } else {
-            flattened.push(item);
-          }
-        });
-
-        setRepos(flattened);
-        setIsCachedData(false);
-        try {
-          localStorage.setItem('cached_github_repos', JSON.stringify(flattened));
-        } catch (e) {
-          console.error('Failed to save repos to localStorage', e);
-        }
-        setLoadingRepos(false);
-      })
-      .catch((err) => {
-        console.warn('GitHub fetch error, checking localStorage cache...', err);
-        const cached = localStorage.getItem('cached_github_repos');
-        if (cached) {
-          try {
-            const parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setRepos(parsed);
-              setIsCachedData(true);
-              setErrorRepos(false);
-              setLoadingRepos(false);
-              return;
-            }
-          } catch (e) {
-            console.error('Failed to parse cached repositories', e);
-          }
-        }
-        setErrorRepos(true);
-        setLoadingRepos(false);
-      });
-  }, []);
+  const [repos] = useState<GitHubRepo[]>(projectsData as unknown as GitHubRepo[]);
+  const loadingRepos = false;
+  const errorRepos = projectsData.length === 0;
+  const isCachedData = false;
 
   const leftWidthRef = useRef(leftWidth);
   const rightWidthRef = useRef(rightWidth);
