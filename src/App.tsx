@@ -81,6 +81,26 @@ const extractDescriptionFromMarkdown = (text: string): string => {
   return '';
 };
 
+const extractLanguagesFromMarkdown = (text: string): { [key: string]: number } => {
+  const languages: { [key: string]: number } = {};
+  const commonLangs = ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python', 'Rust', 'Go', 'Java', 'C++', 'C', 'PHP', 'Shell', 'Ruby', 'SCSS', 'Swift', 'Kotlin'];
+  
+  commonLangs.forEach(lang => {
+    const escapedLang = lang.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`\\b${escapedLang}\\b`, 'gi');
+    const matches = text.match(regex);
+    if (matches && matches.length > 0) {
+      languages[lang] = matches.length * 2000;
+    }
+  });
+  
+  if (Object.keys(languages).length === 0) {
+    languages['Markdown'] = 1000;
+  }
+  return languages;
+};
+
+
 function App() {
   const [activeSection, setActiveSection] = useState<'home' | 'projects' | 'experience' | 'skills'>('projects');
   const [activeFile, setActiveFile] = useState<string | null>('home.tsx');
@@ -123,8 +143,52 @@ function App() {
       })
       .then(async (data: GitHubRepo[]) => {
         const checkedRepos = await Promise.all(
-          data.map(async (repo): Promise<GitHubRepo | null> => {
+          data.map(async (repo): Promise<GitHubRepo[] | GitHubRepo | null> => {
             try {
+              const isResumesRepo = repo.name.toLowerCase() === 'resumes' || repo.name.toLowerCase() === 'resume';
+              if (isResumesRepo) {
+                const contentsRes = await fetch(`https://api.github.com/repos/rudrarathod/${repo.name}/contents/`);
+                if (contentsRes.ok) {
+                  const files = await contentsRes.json();
+                  if (Array.isArray(files)) {
+                    const mdFiles = files.filter(f => f.type === 'file' && f.name.endsWith('.md') && f.name.toLowerCase() !== 'readme.md');
+                    
+                    const virtualRepos = await Promise.all(
+                      mdFiles.map(async (file): Promise<GitHubRepo> => {
+                        let text = '';
+                        try {
+                          const fileRes = await fetch(file.download_url);
+                          if (fileRes.ok) {
+                            text = await fileRes.text();
+                          }
+                        } catch (e) {
+                          console.error('Failed to fetch virtual repo content', file.name, e);
+                        }
+                        
+                        const displayName = file.name.replace(/\.md$/, '');
+                        const desc = extractDescriptionFromMarkdown(text) || 'Private project documentation.';
+                        const virtualLanguages = extractLanguagesFromMarkdown(text);
+                        
+                        return {
+                          name: displayName,
+                          html_url: file.html_url,
+                          description: desc,
+                          stargazers_count: 0,
+                          forks_count: 0,
+                          open_issues_count: 0,
+                          language: 'Markdown',
+                          languages: virtualLanguages,
+                          license: null,
+                          default_branch: repo.default_branch,
+                          resume_url: file.download_url
+                        };
+                      })
+                    );
+                    return virtualRepos;
+                  }
+                }
+              }
+
               let resumeUrl = '';
               let text = '';
               
@@ -162,8 +226,18 @@ function App() {
             }
           })
         );
-        const filtered = checkedRepos.filter((repo): repo is GitHubRepo => repo !== null);
-        setRepos(filtered);
+
+        const flattened: GitHubRepo[] = [];
+        checkedRepos.forEach(item => {
+          if (item === null) return;
+          if (Array.isArray(item)) {
+            flattened.push(...item);
+          } else {
+            flattened.push(item);
+          }
+        });
+
+        setRepos(flattened);
         setLoadingRepos(false);
       })
       .catch(() => {
