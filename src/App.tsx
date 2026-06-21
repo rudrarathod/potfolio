@@ -1,14 +1,62 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import Home from './pages/home'
+import Dashboard from './pages/dashboard'
 import Info from './pages/info'
 import Project from './pages/project'
 import Experience from './pages/experience'
 import Skills from './pages/skills'
+import GithubProject from './pages/github-project'
+
+
+export interface GitHubRepo {
+  name: string;
+  html_url: string;
+  description: string | null;
+  stargazers_count: number;
+  forks_count: number;
+  open_issues_count: number;
+  language: string | null;
+  license: { name: string } | null;
+  default_branch: string;
+}
+
+const getFileExtensionForLanguage = (lang: string | null): string => {
+  if (!lang) return 'md';
+  const l = lang.toLowerCase();
+  if (l === 'typescript') return 'tsx';
+  if (l === 'javascript') return 'js';
+  if (l === 'python') return 'py';
+  if (l === 'html') return 'html';
+  if (l === 'css') return 'css';
+  if (l === 'c++') return 'cpp';
+  if (l === 'c') return 'c';
+  if (l === 'shell') return 'sh';
+  return 'md';
+};
+
+const getFileIconAndColor = (filename: string) => {
+  if (filename === 'dashboard') {
+    return { iconClass: 'fa-solid fa-table-cells-large', color: '#fabd2f' };
+  }
+  if (filename === 'home.tsx') {
+    return { iconClass: 'fa-solid fa-file-code', color: '#fabd2f' };
+  }
+  const ext = filename.split('.').pop() || '';
+  switch (ext) {
+    case 'json':
+      return { iconClass: 'fa-solid fa-gears', color: '#83a598' };
+    case 'md':
+      return { iconClass: 'fa-solid fa-file-lines', color: '#b8bb26' };
+    default:
+      return { iconClass: 'fa-solid fa-file-code', color: '#fabd2f' };
+  }
+};
+
 
 function App() {
   const [activeSection, setActiveSection] = useState<'projects' | 'experience' | 'skills'>('projects');
-  const [activeFile, setActiveFile] = useState<string>('home.tsx');
+  const [activeFile, setActiveFile] = useState<string | null>('home.tsx');
   const [isFullScreen, setIsFullScreen] = useState(true);
   const [showScrollExitOption, setShowScrollExitOption] = useState(false);
   const [touchStartY, setTouchStartY] = useState(0);
@@ -22,6 +70,38 @@ function App() {
     return saved ? parseInt(saved, 10) : 250;
   });
   const [isDragging, setIsDragging] = useState<boolean>(false);
+
+  const [repos, setRepos] = useState<GitHubRepo[]>([]);
+  const [loadingRepos, setLoadingRepos] = useState<boolean>(true);
+  const [errorRepos, setErrorRepos] = useState<boolean>(false);
+
+  useEffect(() => {
+    const cached = sessionStorage.getItem('github_repos');
+    if (cached) {
+      try {
+        setRepos(JSON.parse(cached));
+        setLoadingRepos(false);
+        return;
+      } catch {
+        // Ignore and refetch
+      }
+    }
+
+    fetch('https://api.github.com/users/rudrarathod/repos?sort=updated')
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to fetch');
+        return res.json();
+      })
+      .then((data: GitHubRepo[]) => {
+        setRepos(data);
+        sessionStorage.setItem('github_repos', JSON.stringify(data));
+        setLoadingRepos(false);
+      })
+      .catch(() => {
+        setErrorRepos(true);
+        setLoadingRepos(false);
+      });
+  }, []);
 
   const leftWidthRef = useRef(leftWidth);
   const rightWidthRef = useRef(rightWidth);
@@ -92,6 +172,13 @@ function App() {
     }
   }, [activeFile]);
 
+  // Exiting resume fullscreen reverts the main pane to the Dashboard
+  useEffect(() => {
+    if (!isFullScreen && activeFile === 'home.tsx') {
+      setActiveFile(null);
+    }
+  }, [isFullScreen, activeFile]);
+
   // Press Escape key to exit full screen mode properly
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -144,39 +231,55 @@ function App() {
   const getFilesForSection = (section: 'projects' | 'experience' | 'skills') => {
     switch (section) {
       case 'experience':
-        return ['home.tsx', 'bot-intern.md', 'chrome-freelance.md', 'fullstack-freelance.md'];
+        return ['dashboard', 'bot-intern.md', 'chrome-freelance.md', 'fullstack-freelance.md'];
       case 'skills':
-        return ['home.tsx', 'languages.json', 'frontend.json', 'backend.json', 'databases.json', 'ai-ml.json'];
+        return ['dashboard', 'languages.json', 'frontend.json', 'backend.json', 'databases.json', 'ai-ml.json'];
       case 'projects':
-      default:
-        return ['home.tsx', 'yt-play.js', 'nitro.js', 'expenses.tsx', 'bulk-img.tsx'];
+      default: {
+        if (loadingRepos || errorRepos || repos.length === 0) {
+          return ['dashboard', 'yt-play.js', 'nitro.js', 'expenses.tsx', 'bulk-img.tsx'];
+        }
+        const repoFiles = repos.map(repo => `${repo.name}.${getFileExtensionForLanguage(repo.language)}`);
+        return ['dashboard', ...repoFiles];
+      }
     }
   };
 
   const files = getFilesForSection(activeSection);
 
   const goPrevFile = () => {
-    const idx = files.indexOf(activeFile);
-    const prevIdx = (idx - 1 + files.length) % files.length;
-    setActiveFile(files[prevIdx]);
+    if (activeFile === null) {
+      setActiveFile(files[files.length - 1]);
+    } else {
+      const idx = files.indexOf(activeFile);
+      if (idx === 0 || idx === -1) {
+        setActiveFile(null);
+      } else {
+        setActiveFile(files[idx - 1]);
+      }
+    }
   };
 
   const goNextFile = () => {
-    const idx = files.indexOf(activeFile);
-    const nextIdx = (idx + 1) % files.length;
-    setActiveFile(files[nextIdx]);
+    if (activeFile === null) {
+      setActiveFile(files[0]);
+    } else {
+      const idx = files.indexOf(activeFile);
+      if (idx === files.length - 1 || idx === -1) {
+        setActiveFile(null);
+      } else {
+        setActiveFile(files[idx + 1]);
+      }
+    }
   };
 
   const handleSectionChange = (section: 'projects' | 'experience' | 'skills') => {
     setActiveSection(section);
-    setActiveFile('home.tsx');
+    setActiveFile(null);
   };
 
   const handleCheckboxChange = (checked: boolean) => {
     setIsFullScreen(checked);
-    if (checked) {
-      setActiveFile('home.tsx');
-    }
   };
 
   const maximizeMainInfo = () => {
@@ -238,7 +341,7 @@ function App() {
             </div>
 
             <div className="page-title">
-              <h1>{activeFile}</h1>
+              <h1>{activeFile || 'dashboard'}</h1>
             </div>
           </p>
         </div>
@@ -251,125 +354,28 @@ function App() {
         >
           <div className="inner">
             <div className="projects-explorer">
-              <button
-                className={`explorer-item ${activeFile === 'home.tsx' ? 'active' : ''}`}
-                onClick={() => setActiveFile('home.tsx')}
-                title="Open home.tsx"
-              >
-                <i className="fa-solid fa-file-code" style={{ color: '#fabd2f' }}></i>
-                <span>home.tsx</span>
-              </button>
+              {getFilesForSection(activeSection).map(file => {
+                const { iconClass, color } = getFileIconAndColor(file);
+                let displayLabel = file;
+                if (file === 'chrome-freelance.md') displayLabel = 'chrome.md';
+                if (file === 'fullstack-freelance.md') displayLabel = 'fullstack.md';
+                
+                const isDashboard = file === 'dashboard';
+                const isActive = isDashboard ? (activeFile === null) : (activeFile === file);
+                const clickHandler = isDashboard ? () => setActiveFile(null) : () => setActiveFile(file);
 
-              {activeSection === 'projects' && (
-                <>
+                return (
                   <button
-                    className={`explorer-item ${activeFile === 'yt-play.js' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('yt-play.js')}
-                    title="Open yt-play.js"
+                    key={file}
+                    className={`explorer-item ${isActive ? 'active' : ''}`}
+                    onClick={clickHandler}
+                    title={isDashboard ? "Open Dashboard" : `Open ${file}`}
                   >
-                    <i className="fa-solid fa-file-code" style={{ color: '#fabd2f' }}></i>
-                    <span>yt-play.js</span>
+                    <i className={iconClass} style={{ color }}></i>
+                    <span>{displayLabel}</span>
                   </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'nitro.js' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('nitro.js')}
-                    title="Open nitro.js"
-                  >
-                    <i className="fa-solid fa-file-code" style={{ color: '#fabd2f' }}></i>
-                    <span>nitro.js</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'expenses.tsx' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('expenses.tsx')}
-                    title="Open expenses.tsx"
-                  >
-                    <i className="fa-solid fa-file-code" style={{ color: '#fabd2f' }}></i>
-                    <span>expenses.tsx</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'bulk-img.tsx' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('bulk-img.tsx')}
-                    title="Open bulk-img.tsx"
-                  >
-                    <i className="fa-solid fa-file-code" style={{ color: '#fabd2f' }}></i>
-                    <span>bulk-img.tsx</span>
-                  </button>
-                </>
-              )}
-
-              {activeSection === 'experience' && (
-                <>
-                  <button
-                    className={`explorer-item ${activeFile === 'bot-intern.md' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('bot-intern.md')}
-                    title="Open bot-intern.md"
-                  >
-                    <i className="fa-solid fa-file-lines" style={{ color: '#b8bb26' }}></i>
-                    <span>bot-intern.md</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'chrome-freelance.md' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('chrome-freelance.md')}
-                    title="Open chrome-freelance.md"
-                  >
-                    <i className="fa-solid fa-file-lines" style={{ color: '#b8bb26' }}></i>
-                    <span>chrome.md</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'fullstack-freelance.md' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('fullstack-freelance.md')}
-                    title="Open fullstack-freelance.md"
-                  >
-                    <i className="fa-solid fa-file-lines" style={{ color: '#b8bb26' }}></i>
-                    <span>fullstack.md</span>
-                  </button>
-                </>
-              )}
-
-              {activeSection === 'skills' && (
-                <>
-                  <button
-                    className={`explorer-item ${activeFile === 'languages.json' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('languages.json')}
-                    title="Open languages.json"
-                  >
-                    <i className="fa-solid fa-gears" style={{ color: '#83a598' }}></i>
-                    <span>languages.json</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'frontend.json' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('frontend.json')}
-                    title="Open frontend.json"
-                  >
-                    <i className="fa-solid fa-gears" style={{ color: '#83a598' }}></i>
-                    <span>frontend.json</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'backend.json' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('backend.json')}
-                    title="Open backend.json"
-                  >
-                    <i className="fa-solid fa-gears" style={{ color: '#83a598' }}></i>
-                    <span>backend.json</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'databases.json' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('databases.json')}
-                    title="Open databases.json"
-                  >
-                    <i className="fa-solid fa-gears" style={{ color: '#83a598' }}></i>
-                    <span>databases.json</span>
-                  </button>
-                  <button
-                    className={`explorer-item ${activeFile === 'ai-ml.json' ? 'active' : ''}`}
-                    onClick={() => setActiveFile('ai-ml.json')}
-                    title="Open ai-ml.json"
-                  >
-                    <i className="fa-solid fa-gears" style={{ color: '#83a598' }}></i>
-                    <span>ai-ml.json</span>
-                  </button>
-                </>
-              )}
+                );
+              })}
             </div>
           </div>
           {!isFullScreen && (
@@ -393,11 +399,45 @@ function App() {
             onTouchMove={handleTouchMove}
           >
             <div className="home">
-              {activeFile === 'home.tsx' && <Home onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
-              {activeFile === 'yt-play.js' && <Project id="yt-enhancer" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
-              {activeFile === 'nitro.js' && <Project id="nitro-input" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
-              {activeFile === 'expenses.tsx' && <Project id="expense-tracker" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
-              {activeFile === 'bulk-img.tsx' && <Project id="bulk-editor" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
+              {activeFile === null && (
+                <Dashboard 
+                  section={activeSection}
+                  repos={repos}
+                  loadingRepos={loadingRepos}
+                  onSelectFile={setActiveFile}
+                  onToggleFullScreen={() => setIsFullScreen(prev => !prev)}
+                  isFullScreen={isFullScreen}
+                />
+              )}
+              {activeFile === 'home.tsx' && (
+                <Home 
+                  onToggleFullScreen={() => setIsFullScreen(prev => !prev)} 
+                  isFullScreen={isFullScreen} 
+                />
+              )}
+              
+              {/* Dynamic GitHub projects */}
+              {activeSection === 'projects' && activeFile !== null && activeFile !== 'home.tsx' && (() => {
+                const activeRepo = repos.find(repo => {
+                  const ext = getFileExtensionForLanguage(repo.language);
+                  return `${repo.name}.${ext}` === activeFile;
+                });
+                if (activeRepo) {
+                  return (
+                    <GithubProject 
+                      repo={activeRepo} 
+                      onToggleFullScreen={() => setIsFullScreen(prev => !prev)} 
+                      isFullScreen={isFullScreen} 
+                    />
+                  );
+                }
+                // Static fallbacks
+                if (activeFile === 'yt-play.js') return <Project id="yt-enhancer" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />;
+                if (activeFile === 'nitro.js') return <Project id="nitro-input" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />;
+                if (activeFile === 'expenses.tsx') return <Project id="expense-tracker" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />;
+                if (activeFile === 'bulk-img.tsx') return <Project id="bulk-editor" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />;
+                return null;
+              })()}
 
               {activeFile === 'bot-intern.md' && <Experience id="bot-intern" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
               {activeFile === 'chrome-freelance.md' && <Experience id="chrome-freelance" onToggleFullScreen={() => setIsFullScreen(prev => !prev)} isFullScreen={isFullScreen} />}
