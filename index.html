@@ -5,28 +5,34 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/potfolio/logo.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rudra Potfolio</title>
+  <title>Rudra Rathod | Portfolio</title>
+  <meta name="description" content="Rudra Rathod - AI & ML student at ISBM College of Engineering. Experienced in IoT, Robotics, Web development, and Workflow automation." />
+  <meta name="keywords" content="Rudra Rathod, Portfolio, AI student, ML, IoT, Web Developer, Robotics, ISBM College of Engineering" />
 
   <script src="https://kit.fontawesome.com/3d9a7ee55e.js" crossorigin="anonymous"></script>
 
   <style>
-    .cursor {
-      display: block;
+    .cursor-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      will-change: transform;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    .cursor-dot {
+      display: flex;
       width: 30px;
       height: 30px;
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%);
+      top: -15px;
+      left: -15px;
       border-radius: 50%;
       background: transparent;
       pointer-events: none;
-      z-index: 111;
       border: 1px solid #fff;
-      /* transition: all 0.2s ease-out; */
       animation: moveCursor1 .5s infinite alternate;
-
-      display: flex;
       justify-content: center;
       align-items: center;
       color: #fbff00;
@@ -34,7 +40,7 @@
       font-weight: 600;
     }
 
-    .expand {
+    .cursor-dot.expand {
       background: transparent;
       animation: moveCursor2 .5s forwards;
       border: 1px solid yellow;
@@ -44,7 +50,6 @@
       from {
         transform: scale(1);
       }
-
       to {
         transform: scale(.8);
       }
@@ -54,34 +59,46 @@
       0% {
         transform: scale(1);
       }
-
       50% {
         transform: scale(2.5);
       }
-
       100% {
         transform: scale(1);
         opacity: 0;
       }
     }
+
+    /* Hide custom cursor on touch devices for accessibility and smooth operation */
+    @media (max-width: 768px) {
+      .cursor-container {
+        display: none !important;
+      }
+      :root {
+        cursor: auto !important;
+      }
+    }
   </style>
-  <script type="module" crossorigin src="/potfolio/assets/index-DHJ4YSco.js"></script>
-  <link rel="stylesheet" crossorigin href="/potfolio/assets/index-CzIziK1u.css">
+  <script type="module" crossorigin src="/potfolio/assets/index-DancDuqa.js"></script>
+  <link rel="stylesheet" crossorigin href="/potfolio/assets/index-Bv4N4F9s.css">
 </head>
 
 <body>
-  <div class="cursor">·</div>
+  <div class="cursor-container">
+    <div class="cursor-dot">·</div>
+  </div>
   <script>
-    const cursor = document.querySelector('.cursor');
+    const cursorContainer = document.querySelector('.cursor-container');
+    const cursorDot = document.querySelector('.cursor-dot');
 
+    // Use fast translate3d positioning (runs on GPU compositor thread)
     document.addEventListener('mousemove', e => {
-      cursor.setAttribute("style", "top: " + (e.pageY - 10) + "px; left: " + (e.pageX - 10) + "px;")
+      cursorContainer.style.transform = `translate3d(${e.pageX}px, ${e.pageY}px, 0)`;
     });
 
     document.addEventListener('click', e => {
-      cursor.classList.add("expand");
+      cursorDot.classList.add("expand");
       setTimeout(() => {
-        cursor.classList.remove("expand");
+        cursorDot.classList.remove("expand");
       }, 500);
     });
   </script>
