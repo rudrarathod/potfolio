@@ -165,17 +165,19 @@ export default function GithubProject({ repo, onToggleFullScreen, isFullScreen }
       <div className={styles.content}>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{repo.name}</h1>
-          <a
-            href={repo.html_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.githubRedirectBtn}
-            title="Open Repository on GitHub"
-          >
-            <i className="fa-brands fa-github" style={{ marginRight: '8px' }}></i>
-            Open on GitHub
-            <i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: '8px', fontSize: '0.75rem' }}></i>
-          </a>
+          {!repo.private && (
+            <a
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.githubRedirectBtn}
+              title="Open Repository on GitHub"
+            >
+              <i className="fa-brands fa-github" style={{ marginRight: '8px' }}></i>
+              Open on GitHub
+              <i className="fa-solid fa-arrow-up-right-from-square" style={{ marginLeft: '8px', fontSize: '0.75rem' }}></i>
+            </a>
+          )}
         </div>
 
         {repo.description && (
@@ -240,58 +242,62 @@ export default function GithubProject({ repo, onToggleFullScreen, isFullScreen }
           )}
         </div>
 
-        <div className={styles.divider}></div>
+        {!repo.private && (
+          <>
+            <div className={styles.divider}></div>
 
-        {/* Languages Section */}
-        {mainLanguages.length > 0 && (
-          <div className={styles.languagesSection}>
-            <div className={styles.languagesHeader}>Languages</div>
-            <div className={styles.languagesBar}>
-              {mainLanguages.map(lang => (
-                <div
-                  key={lang.name}
-                  className={styles.languageBarSegment}
-                  style={{
-                    width: `${lang.percentage}%`,
-                    backgroundColor: lang.color,
-                  }}
-                  title={`${lang.name}: ${lang.percentage.toFixed(1)}%`}
-                />
-              ))}
-            </div>
-            <div className={styles.languagesList}>
-              {mainLanguages.map(lang => (
-                <div key={lang.name} className={styles.languageItem}>
-                  <span
-                    className={styles.languageDot}
-                    style={{ backgroundColor: lang.color }}
-                  />
-                  <span className={styles.languageName}>{lang.name}</span>
-                  <span className={styles.languagePercent}>
-                    {lang.percentage.toFixed(1)}%
-                  </span>
+            {/* Languages Section */}
+            {mainLanguages.length > 0 && (
+              <div className={styles.languagesSection}>
+                <div className={styles.languagesHeader}>Languages</div>
+                <div className={styles.languagesBar}>
+                  {mainLanguages.map(lang => (
+                    <div
+                      key={lang.name}
+                      className={styles.languageBarSegment}
+                      style={{
+                        width: `${lang.percentage}%`,
+                        backgroundColor: lang.color,
+                      }}
+                      title={`${lang.name}: ${lang.percentage.toFixed(1)}%`}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+                <div className={styles.languagesList}>
+                  {mainLanguages.map(lang => (
+                    <div key={lang.name} className={styles.languageItem}>
+                      <span
+                        className={styles.languageDot}
+                        style={{ backgroundColor: lang.color }}
+                      />
+                      <span className={styles.languageName}>{lang.name}</span>
+                      <span className={styles.languagePercent}>
+                        {lang.percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* IDE Source Metadata JSON Block */}
         <div className={styles.codeBlockHeader}>Repository Metadata</div>
         <pre className={styles.codeBlock}>
-{`{
-  "repositoryName": "${repo.name}",
-  "githubUrl": "${repo.html_url}",
-  "defaultBranch": "${repo.default_branch}",
-  "primaryLanguage": "${primaryLanguage}",
-  "languages": {
-    ${mainLanguages.map(l => `"${l.name}": "${l.percentage.toFixed(1)}%"`).join(',\n    ')}
-  },
-  "starsCount": ${repo.stargazers_count},
-  "forksCount": ${repo.forks_count},
-  "openIssues": ${repo.open_issues_count},
-  "license": "${licenseName}"
-}`}
+{JSON.stringify({
+  repositoryName: repo.name,
+  ...(!repo.private && { githubUrl: repo.html_url }),
+  defaultBranch: repo.default_branch,
+  primaryLanguage: primaryLanguage,
+  ...(!repo.private && {
+    languages: Object.fromEntries(mainLanguages.map(l => [l.name, `${l.percentage.toFixed(1)}%`]))
+  }),
+  starsCount: repo.stargazers_count,
+  forksCount: repo.forks_count,
+  openIssues: repo.open_issues_count,
+  license: licenseName
+}, null, 2)}
         </pre>
       </div>
     </div>
