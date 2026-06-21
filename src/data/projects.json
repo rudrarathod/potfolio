@@ -1,8 +1,27 @@
 [
   {
+    "name": "autoFarmJs",
+    "html_url": "https://github.com/rudrarathod/autoFarmJs",
+    "description": "To give players a fully responsive coding experience, the scripting environment requires a bridge between user code execution and UI rendering. Traditional sandboxing using eval blockades the main UI thread during synchronous actions or infinite loops.",
+    "stargazers_count": 0,
+    "forks_count": 0,
+    "open_issues_count": 0,
+    "language": "JavaScript",
+    "languages": {
+      "JavaScript": 200186,
+      "CSS": 71033,
+      "HTML": 560
+    },
+    "license": null,
+    "default_branch": "master",
+    "resume_url": "https://raw.githubusercontent.com/rudrarathod/autoFarmJs/master/RESUME.md",
+    "private": false,
+    "resume_content": "# Rural Automation\n### *An educational incremental automation game featuring sandboxed user scripting, a WebGL-based farm engine, and dynamic node layouts.*\n\n👉 **[Live Demo](https://code-farm.vercel.app/)**\n\n## Project Overview\n**Rural Automation** is an interactive, browser-based incremental idle game that teaches programming concepts through gameplay automation. Players write custom JavaScript code to instruct an autonomous drone to scan, till, plant, harvest, and manage power constraints across an expanding farm grid. The game is architected around a React/Vite foundation, pairing a sandboxed asynchronous execution engine with a hardware-accelerated WebGL game canvas and a dynamic research/upgrade skill graph.\n\n## Core Technologies\n*   **Frontend & UI**: React 19, Vite, Vanilla CSS\n*   **Graphics & Rendering Engine**: PixiJS (v8), WebGL 2D Application context, HTML5 Canvas API (Pixel-buffer manipulation)\n*   **State Management**: Zustand (v5), Custom Persistence Middleware\n*   **Editor & Tooling**: Monaco Editor (`@monaco-editor/react`), ESLint, React Router\n*   **Data Visualization / Node Graph**: React Flow (`@xyflow/react`)\n*   **Data Storage**: IndexedDB (Asset Blob Caching), Web Storage API (localStorage)\n\n---\n\n## Key Contributions & Engineering Challenges\n\n*   **Engineered a Sandboxed JS Execution Engine**: Architected an asynchronous runtime interpreter (`createDroneRunner`) that translates user-written JavaScript into a controlled execution context. Evaluated user code within a dynamically wrapped, self-invoking function (`new Function`) combined with `Promise.race` and `AbortController` signals to facilitate instant script cancellation. This successfully prevented browser crashes and runtime lockups due to infinite loops while providing visual step-by-step debugger stepping.\n*   **Optimized Rendering Performance & Graphic Pipelines**: Leveraged PixiJS v8 and WebGL to run hardware-accelerated rendering of the farm grid and the drone, sustaining a lock-step **60 FPS** on both mobile and desktop screens. Implemented custom 2D canvas pixel-buffer manipulators (`getImageData`) to scan image assets and strip solid background borders in a single pass at startup. This resolved alpha transparency issues in retro pixel-art sprites without modifying source asset dimensions.\n*   **Reduced Initial Asset Loading Time by 90%+**: Developed a client-side preloading orchestrator that caches binary asset images as Blobs in IndexedDB. It compares cache versions using localStorage and fetches only missing or updated assets in parallel. Once loaded, Blobs are programmatically mapped to in-memory URL pointers (`URL.createObjectURL`) for instant loading in WebGL texture slots, entirely bypassing the network on subsequent page loads.\n*   **Architected a Collision-Free Skill Tree and Dynamic SVG Router**: Integrated React Flow (`@xyflow/react`) to build a research progression tree with custom node views. Developed a dynamic, depth-first layout algorithm to automatically position skill branches side-by-side without overlap. Authored a custom geometry-routing system (`SmartConnectionEdge`) that detects node coordinates and routes SVG connections around cards rather than crossing directly through them.\n*   **Implemented Context-Aware Code Editor Autocomplete**: Embedded Monaco Editor (the engine powering VS Code) inside the React interface and registered custom completion item providers (`monaco.languages.registerCompletionItemProvider`). Injected tailored metadata definitions for `drone` and `sensor` API classes. This provided real-time documentation snippets, active parameter helpers, and auto-complete actions, reducing player scripting syntax errors by over **75%**.\n\n---\n\n## Key Architecture & Design Decisions\n\n### 1. Asynchronous Sandboxed Runtime with Stack-Trace Line Mapping\nTo give players a fully responsive coding experience, the scripting environment requires a bridge between user code execution and UI rendering. Traditional sandboxing using `eval` blockades the main UI thread during synchronous actions or infinite loops.\n*   **Decision**: User-submitted code is wrapped into an `async` function where game actions (e.g., `drone.moveTo()`, `drone.harvest()`) are injected as asynchronous functions returning aborted-aware promises. Execution delay multipliers scale down to 30ms (up to 20x speed).\n*   **Data Flow & Line Tracking**: During runtime, a custom error parser grabs stack-traces generated by errors or action hooks. It isolates the `userScript` token, extracts the executing line number via regex, and invokes state triggers. This highlights the active line in Monaco Editor in real-time, providing standard debugger-like features directly in the browser.\n\n```mermaid\ngraph TD\n    UserCode[User Script Text] -->|Wrapped in Async Function| Sandbox[new Function Factory]\n    Sandbox -->|Executes via Promise.race| Runner[Asynchronous interpreter]\n    Runner -->|Await Action Delay| GridState[Zustand Store Mutator]\n    GridState -->|Re-renders| PixiCanvas[PixiJS WebGL Canvas]\n    Runner -.->|On Execute / On Error| TraceParser[Stack-Trace Line Parser]\n    TraceParser -->|Delta Decorators| MonacoEditor[Monaco Code Editor Line Highlight]\n```\n\n### 2. Versioned IndexedDB Blob Cache for WebGL Textures\nIncremental games demand instant initialization, but loading sprite-sheets and font styles over the network degrades the startup experience and triggers layout shifts.\n*   **Decision**: The application implements an offline-first asset management layer. Assets are read during startup and checked against an `ASSET_VERSION` token in `localStorage`. If correct, the loader issues async retrievals from IndexedDB and constructs Object URLs in parallel.\n*   **Data Flow**: The resulting Object URLs are mapped into a singleton registry. The PixiJS texture loaders query this registry to hydrate sprites immediately on canvas mount. This decouples local assets from network latency and achieves an sub-50ms texture load time.\n\n---\n\n## Key Takeaways & Learnings\n\n*   **Advanced Control over Async Javascript Runtimes**: Gained deep technical expertise in managing JS execution life cycles. Learned to successfully leverage `AbortController` signals to discard pending promises and stop execution contexts safely, a crucial pattern for creating robust, interactive development platforms.\n*   **Mastery of Asset Pipelines & GPU-Bound Rendering**: Acquired hands-on proficiency in manual texture rendering, GPU scale modes (`nearest` vs `linear`), and pixel-level canvas operations. Learned how local database layers like IndexedDB interact with GPU memory stores to achieve high performance in asset-heavy web applications.\n"
+  },
+  {
     "name": "cocopizza",
     "html_url": "https://github.com/rudrarathod/resumes/blob/main/cocopizza.md",
-    "description": "Cocopizza is a full-stack restaurant management platform developed for a pizza business, combining a customer-facing online ordering webs...",
+    "description": "Cocopizza is a full-stack restaurant management platform developed for a pizza business, combining a customer-facing online ordering website with an integrated Point of Sale (POS) system. The platform streamlines restaurant operations by centralizing order management, inventory tracking, staff access control, and real-time order synchronization between customers and restaurant staff. Built using a client-server-database architecture, the system enables seamless communication between online ordering channels and in-store operations.",
     "stargazers_count": 0,
     "forks_count": 0,
     "open_issues_count": 0,
@@ -41,7 +60,7 @@
   {
     "name": "Video-BG-Remove",
     "html_url": "https://github.com/rudrarathod/Video-BG-Remove",
-    "description": "`An automated video processing pipeline leveraging ONNX-accelerated deep learning to composit dynamic typography behind foreground subjec...",
+    "description": "An automated video processing pipeline leveraging ONNX-accelerated deep learning to composit dynamic typography behind foreground subjects.",
     "stargazers_count": 0,
     "forks_count": 0,
     "open_issues_count": 0,
@@ -114,7 +133,7 @@
   {
     "name": "gridwire-2.5d",
     "html_url": "https://github.com/rudrarathod/gridwire-2.5d",
-    "description": "GridWire 2.5D is an interactive, browser-based CAD and topology modeling platform that enables electrical engineers and hobbyists to cons...",
+    "description": "GridWire 2.5D is an interactive, browser-based CAD and topology modeling platform that enables electrical engineers and hobbyists to construct, route, and edit complex circuit schematics. The system addresses the performance and storage limitations of traditional browser design applications by providing an event-driven SVG vector canvas, a custom in-browser image editor, and a hybrid client-side storage engine. Built with React and TypeScript, its event-driven architecture handles real-time schematic layout, grid snapping, and high-fidelity vector exports entirely on the client side.",
     "stargazers_count": 0,
     "forks_count": 0,
     "open_issues_count": 0,
@@ -133,7 +152,7 @@
   {
     "name": "espFarm",
     "html_url": "https://github.com/rudrarathod/espFarm",
-    "description": "**ESP-Farm** (ESP-Agri) is an offline-first, self-healing smart irrigation and precision automation system built on low-cost ESP32 microc...",
+    "description": "subgraph RemoteCluster[Remote Cluster]",
     "stargazers_count": 0,
     "forks_count": 0,
     "open_issues_count": 0,
@@ -152,7 +171,7 @@
   {
     "name": "StudyAi",
     "html_url": "https://github.com/rudrarathod/StudyAi",
-    "description": "**StudyAi** is an AI-driven, client-side optimized educational web application designed to help students transform static learning materi...",
+    "description": "A[User PDF Upload] --> B[Client-Side PDF.js Extractor]",
     "stargazers_count": 0,
     "forks_count": 1,
     "open_issues_count": 0,
@@ -171,7 +190,7 @@
   {
     "name": "YT-Experience-Enhancer",
     "html_url": "https://github.com/rudrarathod/YT-Experience-Enhancer",
-    "description": "> **A performance-optimized, Manifest V3 browser extension implementing advanced overlay interactions, real-time audio amplification, and...",
+    "description": "A performance-optimized, Manifest V3 browser extension implementing advanced overlay interactions, real-time audio amplification, and canvas-based frame analysis on YouTube.",
     "stargazers_count": 15,
     "forks_count": 1,
     "open_issues_count": 0,
@@ -189,7 +208,7 @@
   {
     "name": "DOMINO---AI-Presentation-Generator",
     "html_url": "https://github.com/rudrarathod/DOMINO---AI-Presentation-Generator",
-    "description": "> A high-performance, real-time presentation design builder that transforms text prompts into structured, interactive slide decks.",
+    "description": "A high-performance, real-time presentation design builder that transforms text prompts into structured, interactive slide decks.",
     "stargazers_count": 0,
     "forks_count": 0,
     "open_issues_count": 0,

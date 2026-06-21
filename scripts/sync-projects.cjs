@@ -178,12 +178,24 @@ function extractDescriptionFromMarkdown(text) {
   if (!text) return '';
   const lines = text.split('\n');
   for (let line of lines) {
-    const cleanLine = line.trim();
-    if (cleanLine.startsWith('#') || cleanLine === '') continue;
-    if (cleanLine.length > 10) {
-      if (cleanLine.length > 140) {
-        return cleanLine.substring(0, 137) + '...';
-      }
+    line = line.trim();
+    // Skip empty lines, headers, images, list items, HRs, and markdown links
+    if (!line || line.startsWith('#') || line.startsWith('!') || line.startsWith('-') || line.startsWith('*') || line.startsWith('[')) {
+      continue;
+    }
+    // Clean up quotes, links, and styling brackets
+    let cleanLine = line
+      .replace(/^>\s*/, '') // strip blockquote characters
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // strip links [text](url) -> text
+      .replace(/[\*_`~]/g, '') // strip markdown bold/italic/code block symbols
+      .trim();
+    
+    // Ignore lines that are just live demo links or emoji-pointed call-to-actions
+    if (cleanLine.toLowerCase().includes('live demo') || cleanLine.toLowerCase().includes('demo:') || cleanLine.startsWith('👉')) {
+      continue;
+    }
+    
+    if (cleanLine.length > 25) {
       return cleanLine;
     }
   }

@@ -118,6 +118,11 @@
   margin: 0;
   flex-grow: 1;
   opacity: 0.9;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cardFooter {
