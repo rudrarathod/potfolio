@@ -1,0 +1,86 @@
+{
+  "name": "Rudra Rathod",
+  "title": "Software Dev Intern & Freelancer",
+  "email": "rudrarathod738@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/rudra-rathod-327131335/",
+  "github": "https://github.com/rudrarathod",
+  "objective": "Motivated and creative Full-Stack Developer, AI Integration Specialist, and Chrome Extension Developer at ISB & M School of Technology. Eager to build production-grade software and integrate advanced AI models (like Gemini API) into web and browser ecosystems. Experienced in developing scalable, low-latency applications, hosting workshops, and scaling open-source solutions to thousands of active users.",
+  "education": [
+    {
+      "degree": "STUDENT (B.E. AI & ML)",
+      "school": "ISB & M School of Technology, Pune",
+      "period": "Sep 2024 – Present",
+      "details": "Artificial Intelligence & Machine Learning (Sep 2024 – Present)"
+    },
+    {
+      "degree": "PREVIOUS EDUCATION",
+      "school": "Diploma in Computer Engineering · GP Yavatmal",
+      "period": "Completed",
+      "details": "Diploma in Computer Engineering · GP Yavatmal"
+    }
+  ],
+  "interests": [
+    {
+      "topic": "AI & WORKFLOW AUTOMATION",
+      "details": "Gemini API, Gemini Vision, NLP, Computer Vision, OCR"
+    },
+    {
+      "topic": "FULL-STACK & BROWSER EXTENSIONS",
+      "details": "React, Next.js, Node.js, Express, Manifest V3 Extensions"
+    },
+    {
+      "topic": "DATABASES & ELECTRONICS",
+      "details": "MySQL, MongoDB, ESP32, IoT devices, and Arduino"
+    }
+  ],
+  "experience": [
+    {
+      "role": "SOFTWARE DEVELOPMENT & TRAINING INTERN",
+      "company": "Black Orange Talent-India, Pune",
+      "period": "Aug 2025 – Present",
+      "bullets": [
+        "Developed STEM-focused EdTech software and IoT learning modules using ESP32.",
+        "Conducted hands-on technical workshops for 50+ students in electronics and programming.",
+        "Created curriculum documentation, project proposals, and training material."
+      ]
+    },
+    {
+      "role": "CHROME EXTENSION DEVELOPER (FREELANCE)",
+      "company": "Freelance Contracts",
+      "period": "Sep 2023 – Present",
+      "bullets": [
+        "Built production-grade Chrome extensions using Manifest V3, service workers, and content scripts.",
+        "Integrated Google Gemini API for AI text generation and computer vision features.",
+        "Optimized extensions to under 50MB RAM usage with 30% performance improvement.",
+        "Published and maintained extensions on Chrome Web Store and Edge Add-ons."
+      ]
+    },
+    {
+      "role": "FULL-STACK DEVELOPER (FREELANCE)",
+      "company": "Freelance Projects",
+      "period": "Jan 2023 – Present",
+      "bullets": [
+        "Developed full-stack web applications using React, TypeScript, Node.js, and PHP.",
+        "Designed RESTful APIs and database schemas using MySQL and MongoDB.",
+        "Integrated AI services including Gemini API and OCR with 90% data accuracy."
+      ]
+    }
+  ],
+  "skills": {
+    "languages": ["JavaScript (ES6+)", "TypeScript", "Python", "PHP", "SQL", "HTML", "CSS"],
+    "frontend": ["React", "Next.js", "Tailwind CSS", "SCSS", "Responsive Design"],
+    "backend": ["Node.js", "Express.js", "REST APIs", "PHP"],
+    "databases": ["MySQL", "MongoDB", "IndexedDB"],
+    "ai-ml": ["Google Gemini API", "Gemini Vision", "OCR", "NLP", "Computer Vision"]
+  },
+  "certifications": [
+    "Google AI Studio Certified – Gemini API",
+    "GitHub Student Developer Pack Member",
+    "Open-source contributor with 10,000+ active users"
+  ],
+  "languages": [
+    "English (Professional)",
+    "Hindi (Native)",
+    "Marathi (Native)"
+  ]
+}

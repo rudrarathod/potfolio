@@ -358,6 +358,33 @@ section.fullscreen .main .main-bar .inner .home {
   color: #b8bb26;
 }
 
+.download-cv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid #7c6f64;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ebdbb2 !important;
+  text-decoration: none;
+  background-color: rgba(251, 241, 199, 0.03);
+  transition: all 0.2s ease;
+  margin-left: 5px;
+}
+
+.download-cv-btn:hover {
+  border-color: #b8bb26;
+  color: #b8bb26 !important;
+  background-color: rgba(184, 187, 38, 0.08);
+  transform: translateY(-1px);
+}
+
+.download-cv-btn i {
+  font-size: 0.85rem;
+}
+
 /* Top-bar Navigation Tabs */
 .section-selector {
   display: flex;

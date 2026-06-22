@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "sync": "node scripts/sync-projects.cjs",
-    "build": "node scripts/sync-projects.cjs && tsc -b && vite build",
+    "pdf": "node scripts/generate-pdf-cv.cjs",
+    "build": "node scripts/sync-projects.cjs && node scripts/generate-pdf-cv.cjs && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },

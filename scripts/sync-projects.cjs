@@ -24,6 +24,17 @@ try {
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || process.env.VITE_GITHUB_TOKEN || '';
 const username = 'rudrarathod';
 
+async function rateLimitCheckedFetch(url, options) {
+  const res = await fetch(url, options);
+  if (res.status === 403) {
+    const rateLimitRemaining = res.headers.get('x-ratelimit-remaining');
+    if (rateLimitRemaining === '0') {
+      throw new Error(`RATE_LIMIT_EXCEEDED: ${url}`);
+    }
+  }
+  return res;
+}
+
 async function run() {
   console.log('Starting projects sync...');
   const headers = {};
@@ -61,12 +72,12 @@ async function run() {
   console.log(`Fetched ${reposData.length} repositories.`);
   const syncedRepos = [];
 
-  for (const repo of reposData) {
-    try {
+  try {
+    for (const repo of reposData) {
       const isResumesRepo = repo.name.toLowerCase() === 'resumes' || repo.name.toLowerCase() === 'resume';
       if (isResumesRepo) {
         console.log(`Processing virtual repos from ${repo.name}...`);
-        const contentsRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/contents/`, { headers });
+        const contentsRes = await rateLimitCheckedFetch(`https://api.github.com/repos/${username}/${repo.name}/contents/`, { headers });
         if (contentsRes.ok) {
           const files = await contentsRes.json();
           if (Array.isArray(files)) {
@@ -74,7 +85,7 @@ async function run() {
             for (const file of mdFiles) {
               console.log(`  Fetching virtual project: ${file.name}`);
               let text = '';
-              const fileRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/contents/${file.name}`, { headers });
+              const fileRes = await rateLimitCheckedFetch(`https://api.github.com/repos/${username}/${repo.name}/contents/${file.name}`, { headers });
               if (fileRes.ok) {
                 const fileData = await fileRes.json();
                 if (fileData.content) {
@@ -110,7 +121,7 @@ async function run() {
       let resumeUrl = '';
       let text = '';
 
-      const res1 = await fetch(`https://api.github.com/repos/${username}/${repo.name}/contents/RESUME.md`, { headers });
+      const res1 = await rateLimitCheckedFetch(`https://api.github.com/repos/${username}/${repo.name}/contents/RESUME.md`, { headers });
       if (res1.ok) {
         const data1 = await res1.json();
         if (data1.content) {
@@ -118,7 +129,7 @@ async function run() {
           resumeUrl = data1.download_url || `https://api.github.com/repos/${username}/${repo.name}/contents/RESUME.md`;
         }
       } else {
-        const res2 = await fetch(`https://api.github.com/repos/${username}/${repo.name}/contents/resume.md`, { headers });
+        const res2 = await rateLimitCheckedFetch(`https://api.github.com/repos/${username}/${repo.name}/contents/resume.md`, { headers });
         if (res2.ok) {
           const data2 = await res2.json();
           if (data2.content) {
@@ -132,7 +143,7 @@ async function run() {
         console.log(`  Found resume for ${repo.name}!`);
         let languages = {};
         try {
-          const langRes = await fetch(`https://api.github.com/repos/${username}/${repo.name}/languages`, { headers });
+          const langRes = await rateLimitCheckedFetch(`https://api.github.com/repos/${username}/${repo.name}/languages`, { headers });
           if (langRes.ok) {
             languages = await langRes.json();
           }
@@ -157,19 +168,32 @@ async function run() {
           resume_content: text
         });
       }
-    } catch (e) {
-      console.error(`Error processing repo ${repo.name}:`, e);
+    }
+
+    // Write file
+    const outDir = path.join(__dirname, '..', 'src', 'data');
+    if (!fs.existsSync(outDir)) {
+      fs.mkdirSync(outDir, { recursive: true });
+    }
+    const outFile = path.join(outDir, 'projects.json');
+    fs.writeFileSync(outFile, JSON.stringify(syncedRepos, null, 2), 'utf-8');
+    console.log(`Successfully synced ${syncedRepos.length} projects to ${outFile}`);
+  } catch (err) {
+    if (err.message.startsWith('RATE_LIMIT_EXCEEDED')) {
+      console.warn(`WARNING: Sync aborted midway due to rate limit: ${err.message}`);
+      const outFile = path.join(__dirname, '..', 'src', 'data', 'projects.json');
+      if (fs.existsSync(outFile)) {
+        console.warn(`Using existing ${outFile} as fallback.`);
+        process.exit(0);
+      } else {
+        console.error(`ERROR: No existing projects.json fallback found.`);
+        process.exit(1);
+      }
+    } else {
+      console.error('Error during repository processing:', err.message);
+      process.exit(1);
     }
   }
-
-  // Write file
-  const outDir = path.join(__dirname, '..', 'src', 'data');
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true });
-  }
-  const outFile = path.join(outDir, 'projects.json');
-  fs.writeFileSync(outFile, JSON.stringify(syncedRepos, null, 2), 'utf-8');
-  console.log(`Successfully synced ${syncedRepos.length} projects to ${outFile}`);
 }
 
 function decodeBase64(str) {

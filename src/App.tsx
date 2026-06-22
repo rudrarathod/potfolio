@@ -552,7 +552,7 @@ function App() {
               <i className="fa-solid fa-envelope"></i>
             </a>
             <a
-              href="https://www.linkedin.com/in/rudra-rathod-347131335/"
+              href="https://www.linkedin.com/in/rudra-rathod-327131335/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn Profile"
@@ -566,6 +566,16 @@ function App() {
               aria-label="GitHub Profile"
             >
               <i className="fa-brands fa-github"></i>
+            </a>
+            <a
+              href="/cv.pdf"
+              download="Rudra_Rathod_Resume.pdf"
+              className="download-cv-btn"
+              aria-label="Download CV"
+              title="Download CV"
+            >
+              <i className="fa-solid fa-file-arrow-down"></i>
+              <span>Download CV</span>
             </a>
           </div>
         </div>
