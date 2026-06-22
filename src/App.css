@@ -483,6 +483,112 @@ section.dragging .right-side-bar:hover .right-handle::after {
   background-color: #b8bb26;
 }
 
+/* Mobile Warning Overlay */
+.mobile-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(40, 40, 40, 0.85); /* Premium semi-transparent overlay */
+  backdrop-filter: blur(8px); /* Backdrop blur */
+  z-index: 999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden; /* Prevent scrolling entirely */
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.mobile-warning-card {
+  max-width: 440px;
+  width: 100%;
+  border: 1px solid #fb4934; /* Warning red border */
+  background-color: #1d2021; /* Darker carbon background */
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+  border-radius: 6px;
+}
+
+.mobile-warning-card::before {
+  content: "SYSTEM ALERT" !important;
+  position: absolute;
+  top: -8px;
+  left: 15px;
+  background-color: #1d2021; /* Match background */
+  color: #fb4934; /* Warning red color */
+  padding: 0 8px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  border-radius: 2px;
+}
+
+.mobile-warning-card.border-container:hover {
+  border-color: #fabd2f; /* Turn yellow on hover */
+  color: inherit !important; /* Prevent text color from turning green */
+  box-shadow: 0 20px 50px rgba(251, 73, 52, 0.15);
+}
+
+.warning-content {
+  padding: 35px 25px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.warning-content h2 {
+  color: #fabd2f; /* Warning yellow title */
+  margin: 0;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.warning-text {
+  color: #fbf1c7;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 95%;
+}
+
+.warning-actions {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-bypass {
+  background: none;
+  border: 1px solid #fb4934; /* Red warning border */
+  color: #fb4934;
+  padding: 10px 24px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-bypass:hover {
+  border-color: #fabd2f;
+  color: #fabd2f;
+  background-color: rgba(251, 73, 52, 0.05);
+  transform: translateY(-1px);
+}
+
+.btn-bypass:active {
+  transform: translateY(0);
+}
+
 
 
 

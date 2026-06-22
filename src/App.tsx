@@ -66,6 +66,40 @@ function App() {
   const [touchStartY, setTouchStartY] = useState(0);
   const reachedBottomTimeRef = useRef<number | null>(null);
 
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [bypassMobileWarning, setBypassMobileWarning] = useState<boolean>(() => {
+    return sessionStorage.getItem('bypass_mobile_warning') === 'true';
+  });
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const mobileScreen = window.innerWidth < 1024;
+      setIsMobile(mobileUA || mobileScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const handleBypassMobile = () => {
+    setBypassMobileWarning(true);
+    sessionStorage.setItem('bypass_mobile_warning', 'true');
+  };
+
+  // Lock body scroll when mobile warning is active
+  useEffect(() => {
+    if (isMobile && !bypassMobileWarning) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobile, bypassMobileWarning]);
+
   // Track when the scroll exit banner first appears to serve as a scroll stopper
   useEffect(() => {
     if (showScrollExitOption) {
@@ -289,6 +323,27 @@ function App() {
   };
 
   const sidebarTitle = activeSection.charAt(0).toUpperCase() + activeSection.slice(1);
+
+  if (isMobile && !bypassMobileWarning) {
+    return (
+      <div className="mobile-warning-overlay">
+        <div className="mobile-warning-card border-container">
+          <div className="warning-content">
+            <h2>Desktop Recommended</h2>
+            <p className="warning-text">
+              This portfolio is designed as an interactive Desktop IDE environment.
+              Please view on a desktop or laptop screen for the best experience.
+            </p>
+            <div className="warning-actions">
+              <button className="btn-bypass" onClick={handleBypassMobile}>
+                Proceed Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <section className={`${isFullScreen ? 'fullscreen' : ''} ${isDragging ? 'dragging' : ''}`.trim()}>
