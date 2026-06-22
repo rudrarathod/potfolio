@@ -409,8 +409,8 @@ function App() {
         </div>
       </div>
       <div className="main">
-        <div 
-          className="left-side-bar border-container" 
+        <div
+          className="left-side-bar border-container"
           data-title={sidebarTitle}
           style={{ width: isFullScreen ? 0 : leftWidth }}
         >
@@ -421,7 +421,7 @@ function App() {
                 let displayLabel = file;
                 if (file === 'chrome-freelance.md') displayLabel = 'chrome.md';
                 if (file === 'fullstack-freelance.md') displayLabel = 'fullstack.md';
-                
+
                 const isDashboard = file === 'dashboard';
                 const isActive = isDashboard ? (activeFile === null) : (activeFile === file);
                 const clickHandler = isDashboard ? () => setActiveFile(null) : () => setActiveFile(file);
@@ -441,8 +441,8 @@ function App() {
             </div>
           </div>
           {!isFullScreen && (
-            <div 
-              className="resize-handle left-handle" 
+            <div
+              className="resize-handle left-handle"
               onMouseDown={handleLeftMouseDown}
               onClick={(e) => {
                 e.stopPropagation();
@@ -462,7 +462,7 @@ function App() {
           >
             <div className="home">
               {activeFile === null && (
-                <Dashboard 
+                <Dashboard
                   section={activeSection}
                   repos={repos}
                   loadingRepos={loadingRepos}
@@ -473,12 +473,12 @@ function App() {
                 />
               )}
               {activeFile === 'home.tsx' && (
-                <Home 
-                  onToggleFullScreen={() => setIsFullScreen(prev => !prev)} 
-                  isFullScreen={isFullScreen} 
+                <Home
+                  onToggleFullScreen={() => setIsFullScreen(prev => !prev)}
+                  isFullScreen={isFullScreen}
                 />
               )}
-              
+
               {/* Dynamic GitHub projects */}
               {activeSection === 'projects' && activeFile !== null && activeFile !== 'home.tsx' && (() => {
                 const activeRepo = repos.find(repo => {
@@ -487,10 +487,10 @@ function App() {
                 });
                 if (activeRepo) {
                   return (
-                    <GithubProject 
-                      repo={activeRepo} 
-                      onToggleFullScreen={() => setIsFullScreen(prev => !prev)} 
-                      isFullScreen={isFullScreen} 
+                    <GithubProject
+                      repo={activeRepo}
+                      onToggleFullScreen={() => setIsFullScreen(prev => !prev)}
+                      isFullScreen={isFullScreen}
                     />
                   );
                 }
@@ -518,8 +518,8 @@ function App() {
         </div>
 
 
-        <div 
-          className="right-side-bar border-container" 
+        <div
+          className="right-side-bar border-container"
           onClick={maximizeMainInfo}
           style={{ width: isFullScreen ? 0 : rightWidth }}
         >
@@ -527,8 +527,8 @@ function App() {
             <Info onToggleFullScreen={maximizeMainInfo} isFullScreen={isFullScreen}></Info>
           </div>
           {!isFullScreen && (
-            <div 
-              className="resize-handle right-handle" 
+            <div
+              className="resize-handle right-handle"
               onMouseDown={handleRightMouseDown}
               onClick={(e) => {
                 e.stopPropagation();
@@ -552,7 +552,7 @@ function App() {
               <i className="fa-solid fa-envelope"></i>
             </a>
             <a
-              href="https://www.linkedin.com/in/rudra-rathod"
+              href="https://www.linkedin.com/in/rudra-rathod-347131335/"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="LinkedIn Profile"

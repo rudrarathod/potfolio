@@ -35,7 +35,7 @@ async function run() {
   }
 
   // 1. Fetch repositories
-  const reposUrl = GITHUB_TOKEN 
+  const reposUrl = GITHUB_TOKEN
     ? 'https://api.github.com/user/repos?type=owner&sort=updated'
     : `https://api.github.com/users/${username}/repos?sort=updated`;
 
@@ -47,8 +47,15 @@ async function run() {
     }
     reposData = await res.json();
   } catch (err) {
-    console.error('Error fetching repositories:', err);
-    process.exit(1);
+    console.error('Error fetching repositories:', err.message);
+    const outFile = path.join(__dirname, '..', 'src', 'data', 'projects.json');
+    if (fs.existsSync(outFile)) {
+      console.warn(`WARNING: Sync failed, but using existing ${outFile} as fallback.`);
+      process.exit(0); // Exit 0 to not block build
+    } else {
+      console.error(`ERROR: Sync failed and no existing projects.json fallback found.`);
+      process.exit(1);
+    }
   }
 
   console.log(`Fetched ${reposData.length} repositories.`);
@@ -189,12 +196,12 @@ function extractDescriptionFromMarkdown(text) {
       .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // strip links [text](url) -> text
       .replace(/[\*_`~]/g, '') // strip markdown bold/italic/code block symbols
       .trim();
-    
+
     // Ignore lines that are just live demo links or emoji-pointed call-to-actions
     if (cleanLine.toLowerCase().includes('live demo') || cleanLine.toLowerCase().includes('demo:') || cleanLine.startsWith('👉')) {
       continue;
     }
-    
+
     if (cleanLine.length > 25) {
       return cleanLine;
     }
@@ -205,7 +212,7 @@ function extractDescriptionFromMarkdown(text) {
 function extractLanguagesFromMarkdown(text) {
   const languages = {};
   const commonLangs = ['JavaScript', 'TypeScript', 'HTML', 'CSS', 'Python', 'Rust', 'Go', 'Java', 'C++', 'C', 'PHP', 'Shell', 'Ruby', 'SCSS', 'Swift', 'Kotlin'];
-  
+
   commonLangs.forEach(lang => {
     const escapedLang = lang.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
     const regex = new RegExp(`\\b${escapedLang}\\b`, 'gi');
@@ -214,7 +221,7 @@ function extractLanguagesFromMarkdown(text) {
       languages[lang] = matches.length * 2000;
     }
   });
-  
+
   if (Object.keys(languages).length === 0) {
     languages['Markdown'] = 1000;
   }
